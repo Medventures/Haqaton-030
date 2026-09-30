@@ -16,7 +16,7 @@ tags:
 - Экран @src/app/parent/page.tsx показывает один из десяти последовательных вопросов.
 - Ответы хранятся в `public.interview_sessions.answers_json` по `parent_id`.
 - Статусы сеанса: `draft`, `completed`.
-- Миграции и RLS: @supabase/migrations/0002_interview_sessions.sql, @supabase/migrations/0003_cases_plans_catalog.sql и @supabase/migrations/0004_parent_interview.sql. Поле `profiles.role` остаётся для схемы кейсов; текущий интерфейс показывает только родительский поток.
+- Миграции и RLS: @supabase/migrations/0002_interview_sessions.sql, @supabase/migrations/0003_cases_plans_catalog.sql и @supabase/migrations/0004_parent_interview.sql. Миграция 0003 добавила в `interview_sessions` поля `case_id`, `revision`, `question_bank_version`, `question_history_json`; текущий интерфейс их не использует. Поле `profiles.role` остаётся для схемы кейсов; текущий интерфейс показывает только родительский поток.
 - Список услуг для вопроса 9: `services` в @src/lib/interview.ts. Это варианты ответа, не подтверждение доступности услуги.
 
 ## Normative Behavior
@@ -37,7 +37,7 @@ tags:
 - Демо-значения не записываются в Supabase до действия родителя; сохранённые ответы имеют приоритет.
 - Интервью не спрашивает диагноз, ИИН, ФИО ребёнка или документы.
 - Завершение интервью пока не создаёт Case Plan. Демо-маршрут читает сохранённые возраст и город только для отображения контекста.
-- Десять фиксированных вопросов удовлетворяют числовому диапазону 8–12, но адаптивность ещё не реализована.
+- Десять фиксированных вопросов удовлетворяют числовому диапазону 8–12, но адаптивность ещё не реализована. Банк вопросов v1 с ветвлением реализован в @src/domain/interview/bank.ts, но к интерфейсу не подключён.
 
 ## Failure Behavior
 

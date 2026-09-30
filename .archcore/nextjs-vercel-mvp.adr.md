@@ -20,7 +20,7 @@ tags:
 - Многошаговые записи (статус + ревизия + событие) — функции Postgres, вызываемые через RPC; supabase-js сам транзакции не открывает.
 - Миграции — SQL-файлы в `supabase/migrations`, применяются через `psql "$POSTGRES_URL_NON_POOLING"`.
 - UI-компоненты — shadcn/ui поверх Tailwind 4 и токенов `DESIGN.md`.
-- Текущие переменные описаны в @.env.example. Серверные `OPENAI_API_KEY` и `OPENAI_MODEL` зарезервированы для следующего этапа.
+- Текущие переменные описаны в @.env.example. Серверные `OPENAI_API_KEY` и `OPENAI_MODEL` зарезервированы для следующего этапа. `CRON_SECRET` тоже зарезервирован: cron-маршрута пока нет.
 
 План задач и приёмки: [PLAN.md](../PLAN.md).
 
