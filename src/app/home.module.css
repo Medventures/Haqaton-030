@@ -1,0 +1,65 @@
+.page { --ink: #172b32; --muted: #61767a; --brand: #257d75; --brand-hover: #176e65; --line: #e1ebe8; min-height: 100vh; background: #f7f9f8; color: var(--ink); font-family: var(--font-geist-sans), Arial, sans-serif; }
+.page a { text-decoration: none; }
+.page a:focus-visible { outline: 3px solid #76bdb1; outline-offset: 4px; }
+.header, .hero, .how, .closing, .footer { width: min(100% - 64px, 1180px); margin-inline: auto; }
+.header { height: 84px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); font-size: 17px; font-weight: 750; letter-spacing: -.6px; }
+.brandMark { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 10px; background: var(--brand); transform: rotate(-7deg); }
+.brandMark span { width: 15px; height: 15px; border: 3px solid #fff; border-radius: 6px 6px 4px 6px; }
+.brandAi { color: var(--brand); }
+.navigation { display: flex; align-items: center; gap: 32px; font-size: 13px; font-weight: 650; }
+.navInfo { color: #536a6d; }.navInfo:hover { color: var(--brand-hover); }
+.navLogin { display: inline-flex; align-items: center; gap: 8px; color: var(--brand-hover); }
+.navLogin svg { width: 16px; height: 16px; }
+.hero { min-height: 624px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, .98fr); align-items: center; gap: clamp(30px, 5vw, 76px); padding-block: 72px 84px; }
+.heroCopy { position: relative; z-index: 1; }
+.kicker { display: inline-flex; align-items: center; gap: 9px; padding: 9px 13px; border: 1px solid #d9e9e3; border-radius: 50px; background: #eef6f2; color: var(--brand-hover); font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+.kickerDot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); }
+.hero h1 { max-width: 650px; margin: 27px 0 21px; font-size: clamp(46px, 5.3vw, 72px); font-weight: 700; line-height: 1.06; letter-spacing: -.06em; }
+.hero h1 span { color: var(--brand); }
+.heroDescription { max-width: 505px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.75; }
+.heroActions { display: flex; align-items: center; flex-wrap: wrap; gap: 26px; margin-top: 32px; }
+.primaryButton { display: inline-flex; align-items: center; justify-content: center; gap: 18px; min-height: 52px; padding: 0 22px; border-radius: 10px; background: var(--brand); color: white; font-size: 14px; font-weight: 700; box-shadow: 0 10px 20px #257d7520; transition: background .18s, transform .18s; }
+.primaryButton:hover { background: var(--brand-hover); transform: translateY(-2px); }
+.primaryButton svg { width: 18px; height: 18px; }
+.secondaryLink { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-size: 13px; font-weight: 700; }
+.secondaryLink:hover { color: var(--brand-hover); }
+.secondaryLink span { font-size: 18px; font-weight: 400; }
+.heroNote { margin: 18px 0 0; color: #849698; font-size: 11px; }
+.heroVisual { position: relative; min-height: 455px; display: grid; place-items: center; isolation: isolate; }
+.visualGlow { position: absolute; inset: 12% 0 7%; z-index: -1; border-radius: 50%; background: radial-gradient(ellipse, #d6eee6 0%, #e9f4ee 45%, transparent 72%); }
+.routeCard { width: min(100%, 475px); padding: 30px 30px 17px; border: 1px solid #e1ebe8; border-radius: 20px; background: #fff; box-shadow: 0 28px 72px #1f5c4a14, 0 3px 10px #1f5c4a06; transform: rotate(-2deg); }
+.routeHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 26px; border-bottom: 1px solid #e9efed; }
+.cardEyebrow, .sectionKicker { color: var(--brand); font-size: 10px; font-weight: 800; letter-spacing: .14em; }
+.routeHeader h2 { margin: 8px 0 0; font-size: 20px; font-weight: 700; letter-spacing: -.035em; line-height: 1.3; }
+.routeSymbol { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: #e8f5f0; color: var(--brand); font-size: 22px; }
+.routeList { list-style: none; margin: 0; padding: 7px 0 0; }
+.routeList li { position: relative; min-height: 92px; display: flex; align-items: center; gap: 15px; }
+.routeList li:not(:last-child)::after { content: ""; position: absolute; top: 62px; bottom: -28px; left: 13px; width: 1px; background: #c9dcd5; }
+.routeNode { position: relative; z-index: 1; flex: none; width: 27px; height: 27px; display: grid; place-items: center; border: 1.5px solid #cadbd4; border-radius: 50%; background: #fff; color: white; font-size: 13px; }
+.routeItemDone .routeNode { border-color: var(--brand); background: var(--brand); }
+.routeItemCurrent .routeNode { border-color: var(--brand); }
+.routeItemCurrent .routeNode span { width: 9px; height: 9px; border-radius: 50%; background: var(--brand); }
+.routeList li div { min-width: 0; display: grid; gap: 5px; }
+.routeList strong { color: var(--ink); font-size: 13px; font-weight: 700; }
+.routeList small { color: #8a9a9a; font-size: 11px; line-height: 1.4; }
+.doneBadge, .currentBadge { flex: none; margin-left: auto; padding: 5px 8px; border-radius: 6px; font-size: 9px; font-weight: 700; white-space: nowrap; }
+.doneBadge { background: #eaf5ef; color: #39806b; }.currentBadge { background: #e9f5f1; color: var(--brand); }
+.visualCaption { position: absolute; right: 13px; bottom: 0; color: #879c96; font-size: 11px; letter-spacing: .02em; }
+.how { padding-block: 78px 94px; border-top: 1px solid var(--line); }
+.sectionIntro { max-width: 590px; }
+.sectionIntro h2, .closing h2 { margin: 14px 0 11px; font-size: clamp(29px, 3vw, 39px); font-weight: 700; line-height: 1.2; letter-spacing: -.045em; }
+.sectionIntro p, .closing p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 38px; }
+.step { min-height: 214px; padding: 27px; border: 1px solid var(--line); border-radius: 16px; background: white; }
+.stepNumber { color: var(--brand); font-size: 12px; font-weight: 800; letter-spacing: .07em; }
+.step h3 { margin: 30px 0 9px; font-size: 17px; font-weight: 700; letter-spacing: -.025em; }
+.step p { max-width: 295px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.closing { display: flex; align-items: center; justify-content: space-between; gap: 28px; padding: 40px 46px; border: 1px solid #d9e9e3; border-radius: 19px; background: #edf6f2; }
+.closing h2 { margin-top: 11px; font-size: clamp(26px, 2.7vw, 34px); }
+.closing .primaryButton { flex: none; }
+.footer { display: flex; justify-content: space-between; gap: 20px; padding-block: 40px; color: #849698; font-size: 11px; }
+.footer span:first-child { color: var(--ink); font-weight: 750; }
+@media (max-width: 900px) { .hero { grid-template-columns: 1fr; gap: 10px; padding-block: 70px 58px; }.heroVisual { min-height: 420px; }.routeCard { width: min(100%, 500px); }.visualCaption { right: 12%; }.steps { gap: 12px; }.step { padding: 22px; } }
+@media (max-width: 620px) { .header, .hero, .how, .closing, .footer { width: min(100% - 36px, 1180px); }.header { height: 70px; }.brand { font-size: 16px; }.navigation { gap: 12px; }.navInfo { display: none; }.hero { padding-block: 56px 44px; }.hero h1 { margin-top: 24px; font-size: clamp(41px, 10vw, 58px); }.heroDescription { font-size: 14px; }.heroActions { gap: 18px; }.heroVisual { min-height: 385px; }.routeCard { padding: 22px 19px 9px; transform: none; }.routeList li { min-height: 86px; }.routeList li:not(:last-child)::after { top: 58px; }.routeList small { font-size: 10px; }.doneBadge, .currentBadge { display: none; }.visualCaption { display: none; }.how { padding-block: 58px 68px; }.steps { grid-template-columns: 1fr; margin-top: 27px; }.step { min-height: 0; padding: 23px; }.step h3 { margin-top: 17px; }.closing { display: block; padding: 30px 24px; }.closing .primaryButton { margin-top: 25px; }.footer { flex-direction: column; gap: 7px; padding-block: 29px; } }
+@media (prefers-reduced-motion: reduce) { .primaryButton { transition: none; } }
