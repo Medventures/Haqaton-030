@@ -5,8 +5,8 @@ Next.js 16 demo for a parent. The dashboard shows a vertical route and a visual 
 ## Setup
 
 1. Use Node.js 22+ and pnpm 10.22.
-2. Copy `.env.example` to `.env.local`. Add Supabase values. OpenAI variables can be kept for the next stage. Keep server keys private.
-3. Apply SQL files in `supabase/migrations` in order to a new database. For an existing database with `0001` and `0002`, apply `0003_cases_plans_catalog.sql`, then `0004_parent_interview.sql`.
+2. Copy `.env.example` to `.env.local`. Add Supabase and OpenAI values. Keep server keys private. Next.js does not override variables that are already set in your shell: if your shell exports another `OPENAI_API_KEY`, unset it before `pnpm dev`.
+3. Apply SQL files in `supabase/migrations` in order to a new database. For an existing database with `0001` and `0002`, apply `0003_cases_plans_catalog.sql`, `0004_parent_interview.sql`, then the three `202609300001…3` files (routes, PMPK documents, route inputs).
 4. Run `pnpm install`, then `pnpm seed:demo`. Run `pnpm seed:catalog` to load the service catalog used by the new case-plan domain.
 5. Run `pnpm dev` and open `http://localhost:3000/`.
 6. Check the merged code with `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm build`.
@@ -17,7 +17,7 @@ The login form is prefilled with `parent@aqylroute.demo` / `DemoParent2026!`. Su
 
 ## Agent demo
 
-The left panel shows the parent's timeline. The right panel shows example agent steps: reviewing context, finding a program, comparing places, and checking times. The parent can choose a time. That choice updates the timeline in the current browser session. Programs, centers, dates, and the confirmation are synthetic. No search, booking, or OpenAI request runs in this demo. `OPENAI_API_KEY` and `OPENAI_MODEL` remain in the server configuration for the next stage.
+The left panel shows the parent's timeline. The right panel shows the agent feed. The PMPK step is real: the parent uploads a PDF, PNG or JPEG, OpenAI reads it, and the parent checks, corrects and confirms the fields. The file is kept in a private Supabase bucket; "Сбросить" deletes the answers, the document and the file. After confirmation the agent finds a KPPK, books a time and builds a weekly schedule. These later steps are synthetic and live only in the current browser tab. API: [docs/api.md](docs/api.md).
 
 ## Database change
 

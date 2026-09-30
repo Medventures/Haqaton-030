@@ -1,0 +1,671 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AqylRoute parent route API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "security": [
+    {
+      "SupabaseBearer": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "SupabaseBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Supabase Auth access_token. The website may instead use its Supabase session cookies."
+      }
+    },
+    "schemas": {
+      "PmpkFields": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document_type",
+          "issued_on",
+          "consultation_on",
+          "issuer",
+          "next_route",
+          "specialists",
+          "support_format",
+          "sessions_per_week"
+        ],
+        "properties": {
+          "document_type": {
+            "type": "string",
+            "enum": [
+              "PMPK_CONCLUSION",
+              "SPECIALIST_CONCLUSION",
+              "INDIVIDUAL_PROGRAM",
+              "IPR",
+              "REHAB_CENTER_PLAN",
+              "MEDICAL_EXTRACT",
+              "TEST_RESULT",
+              "OTHER"
+            ]
+          },
+          "issued_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "consultation_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "issuer": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "next_route": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "KPPK",
+              "OTHER",
+              null
+            ]
+          },
+          "specialists": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "defectolog",
+                "logoped",
+                "psychologist",
+                "social_pedagogue",
+                "other"
+              ]
+            }
+          },
+          "support_format": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "individual_development_program",
+              "other",
+              null
+            ]
+          },
+          "sessions_per_week": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 14,
+            "description": "null unless stated in the document"
+          }
+        }
+      },
+      "PmpkDocument": {
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "revision",
+          "mime_type",
+          "size_bytes",
+          "extracted",
+          "confirmed",
+          "error",
+          "file_url"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending_upload",
+              "parsing",
+              "needs_review",
+              "confirmed",
+              "failed"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "description": "Processing revision; send it back to confirm"
+          },
+          "mime_type": {
+            "type": "string"
+          },
+          "size_bytes": {
+            "type": "integer"
+          },
+          "extracted": {
+            "description": "Model result plus source_quotes[] and dropped_fields[]",
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object"
+              }
+            ]
+          },
+          "confirmed": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PmpkFields"
+              }
+            ]
+          },
+          "error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "file_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Signed link to the private original, valid 5 minutes"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/agent/route": {
+      "get": {
+        "summary": "Read the signed-in parent’s saved route",
+        "responses": {
+          "200": {
+            "description": "Route state: status, stale, plan, error"
+          },
+          "401": {
+            "description": "Missing or invalid session"
+          },
+          "503": {
+            "description": "Database unavailable"
+          }
+        }
+      },
+      "post": {
+        "summary": "Generate and persist a route from the completed interview",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "regenerate": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validated saved route"
+          },
+          "202": {
+            "description": "Generation already running; poll GET"
+          },
+          "400": {
+            "description": "Invalid body"
+          },
+          "401": {
+            "description": "Missing session"
+          },
+          "403": {
+            "description": "Forbidden origin"
+          },
+          "409": {
+            "description": "Interview incomplete or changed"
+          },
+          "422": {
+            "description": "No applicable actions or model refusal"
+          },
+          "429": {
+            "description": "Generation rate limit"
+          },
+          "502": {
+            "description": "Invalid model output"
+          },
+          "503": {
+            "description": "Configuration or upstream unavailable"
+          }
+        }
+      }
+    },
+    "/api/pmpk": {
+      "get": {
+        "summary": "Current PMPK document of the user (document: null if none)",
+        "responses": {
+          "200": {
+            "description": "Document state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "document": {
+                      "$ref": "#/components/schemas/PmpkDocument"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing session"
+          },
+          "403": {
+            "description": "Forbidden origin (cookie sessions)"
+          },
+          "503": {
+            "description": "Configuration, database or upstream unavailable"
+          }
+        }
+      },
+      "post": {
+        "summary": "Register the document; the browser then uploads the original to the returned Storage path",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "mime_type",
+                  "size_bytes",
+                  "consent"
+                ],
+                "properties": {
+                  "mime_type": {
+                    "type": "string",
+                    "enum": [
+                      "application/pdf",
+                      "image/png",
+                      "image/jpeg"
+                    ]
+                  },
+                  "size_bytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10485760
+                  },
+                  "consent": {
+                    "type": "boolean",
+                    "const": true,
+                    "description": "Explicit consent to store the file and send it to OpenAI"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registered; upload to {bucket}/{path} with the user session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "document": {
+                      "$ref": "#/components/schemas/PmpkDocument"
+                    },
+                    "upload": {
+                      "type": "object",
+                      "properties": {
+                        "bucket": {
+                          "type": "string"
+                        },
+                        "path": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body or no consent"
+          },
+          "409": {
+            "description": "A document already exists"
+          },
+          "401": {
+            "description": "Missing session"
+          },
+          "403": {
+            "description": "Forbidden origin (cookie sessions)"
+          },
+          "503": {
+            "description": "Configuration, database or upstream unavailable"
+          }
+        }
+      }
+    },
+    "/api/pmpk/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Status and result",
+        "responses": {
+          "200": {
+            "description": "Document state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "document": {
+                      "$ref": "#/components/schemas/PmpkDocument"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "401": {
+            "description": "Missing session"
+          },
+          "403": {
+            "description": "Forbidden origin (cookie sessions)"
+          },
+          "503": {
+            "description": "Configuration, database or upstream unavailable"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete the document, its original and the parse result",
+        "responses": {
+          "204": {
+            "description": "Database row and file are gone"
+          },
+          "503": {
+            "description": "Cleanup incomplete (cleanup_incomplete): repeat the call"
+          },
+          "401": {
+            "description": "Missing session"
+          },
+          "403": {
+            "description": "Forbidden origin (cookie sessions)"
+          }
+        }
+      }
+    },
+    "/api/pmpk/{id}/parse": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "summary": "Start recognition after the upload (runs inside the request, up to 120 s)",
+        "responses": {
+          "200": {
+            "description": "Document state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "document": {
+                      "$ref": "#/components/schemas/PmpkDocument"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Recognition already running; poll GET"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "409": {
+            "description": "Document deleted or reset while processing"
+          },
+          "422": {
+            "description": "Unreadable or missing file, or model refusal"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "502": {
+            "description": "Invalid model output"
+          },
+          "401": {
+            "description": "Missing session"
+          },
+          "403": {
+            "description": "Forbidden origin (cookie sessions)"
+          },
+          "503": {
+            "description": "Configuration, database or upstream unavailable"
+          }
+        }
+      }
+    },
+    "/api/pmpk/{id}/retry": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "summary": "Repeat a failed recognition",
+        "responses": {
+          "200": {
+            "description": "Document state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "document": {
+                      "$ref": "#/components/schemas/PmpkDocument"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Recognition already running; poll GET"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "409": {
+            "description": "Document deleted or reset while processing"
+          },
+          "422": {
+            "description": "Unreadable or missing file, or model refusal"
+          },
+          "429": {
+            "description": "Rate limit"
+          },
+          "502": {
+            "description": "Invalid model output"
+          },
+          "401": {
+            "description": "Missing session"
+          },
+          "403": {
+            "description": "Forbidden origin (cookie sessions)"
+          },
+          "503": {
+            "description": "Configuration, database or upstream unavailable"
+          }
+        }
+      }
+    },
+    "/api/pmpk/{id}/confirm": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "summary": "Save the parent-checked fields; a confirmed PMPK conclusion updates the route inputs",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "revision",
+                  "confirmed"
+                ],
+                "properties": {
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "confirmed": {
+                    "$ref": "#/components/schemas/PmpkFields"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "document": {
+                      "$ref": "#/components/schemas/PmpkDocument"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "409": {
+            "description": "Revision changed or document not ready"
+          },
+          "422": {
+            "description": "Not a PMPK conclusion, no date, or implausible dates"
+          },
+          "401": {
+            "description": "Missing session"
+          },
+          "403": {
+            "description": "Forbidden origin (cookie sessions)"
+          },
+          "503": {
+            "description": "Configuration, database or upstream unavailable"
+          }
+        }
+      }
+    },
+    "/api/interview/reset": {
+      "post": {
+        "summary": "Clear the interview, PMPK documents with originals, and the saved route",
+        "responses": {
+          "204": {
+            "description": "Everything is deleted, including files in Storage"
+          },
+          "401": {
+            "description": "Missing session"
+          },
+          "403": {
+            "description": "Forbidden origin (cookie sessions)"
+          },
+          "503": {
+            "description": "Cleanup incomplete (cleanup_incomplete): repeat the call"
+          }
+        }
+      }
+    }
+  }
+}

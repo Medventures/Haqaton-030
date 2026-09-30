@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   ArrowRight, CalendarDays, Check, ChevronDown, CircleCheck, CircleDashed, ClipboardList,
-  Clock3, FileText, FileUp, MapPin, RotateCcw, Sparkles,
+  Clock3, MapPin, RotateCcw, Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,13 +14,15 @@ import {
   type Appointment, type CenterSlot, type StageId, type StepStatus,
 } from "@/domain/route/route";
 import {
-  child, kppkCenters, kppkNeededServices, kppkSlots, missedSlotId, nextAssessment, pmpkParse, program, weekEnd, weekSlots,
+  child, kppkCenters, kppkNeededServices, kppkSlots, missedSlotId, nextAssessment, program, weekEnd, weekSlots,
 } from "@/domain/route/demo-case";
 import { afterPhase, demoRouteState, type DemoPhase } from "@/domain/route/demo-status";
 import Interview, { AnswersSummary } from "./interview/interview";
+import { formatDate, nextRouteLabels, PmpkOffer, recommendations, usePmpkDocument, type PmpkState } from "./pmpk-step";
 
 // Screens 1-6 of @.archcore/digital-child-route.prd.md as one walk through case C.
-// ponytail: state lives in the tab and resets on reload; persist Case Plan v2 in Supabase when the flow is final.
+// The PMPK stage is real (upload, OpenAI reading, parent's check); the stages after it are synthetic.
+// ponytail: stages after PMPK live in the tab and reset on reload; persist Case Plan v2 in Supabase when the flow is final.
 type Phase = DemoPhase;
 const after = afterPhase;
 
@@ -35,7 +37,7 @@ function formatSlot(at: string, weekday = true) {
   }).format(new Date(`${at}:00Z`));
 }
 
-function feedFor(phase: Phase, booking: string) {
+function feedFor(phase: Phase, booking: string, pmpk: PmpkState) {
   const done: string[] = [];
   if (after(phase, "parsed")) done.push("Прочитал заключение ПМПК");
   if (after(phase, "searching")) done.push("Определил следующий этап — КППК");
@@ -45,7 +47,9 @@ function feedFor(phase: Phase, booking: string) {
   if (after(phase, "control")) done.push("Сверил посещения с программой");
   if (after(phase, "rescheduled")) done.push("Перезаписал пропущенное занятие");
   const pending: Record<Phase, string> = {
-    upload: "Жду документ от семьи", parsed: "Жду вашей проверки разбора", searching: "Проверяю КППК",
+    upload: pmpk.busy === "upload" ? "Загружаю документ" : pmpk.busy === "parse" || pmpk.document?.status === "parsing" ? "Читаю заключение ПМПК"
+      : pmpk.document?.status === "failed" ? "Жду нового документа или повтора" : "Жду документ от семьи",
+    parsed: pmpk.document?.status === "confirmed" ? "Жду команды искать КППК" : "Жду вашей проверки разбора", searching: "Проверяю КППК",
     centers: "Жду подтверждения времени", "booking-check": "Проверяю возможность записи",
     booked: "Ожидаю посещения КППК", program: "Формирую расписание", schedule: "Жду подтверждения записей",
     scheduled: "Слежу за посещениями", control: "Логопед: одно занятие пропущено", rescheduled: "Слежу за выполнением программы",
@@ -54,7 +58,12 @@ function feedFor(phase: Phase, booking: string) {
 }
 
 export default function ParentJourney({ answers, completed }: { answers: Answers; completed: boolean }) {
-  const [phase, setPhase] = useState<Phase>("upload");
+  const [stage, setPhase] = useState<Phase>("upload");
+  const pmpk = usePmpkDocument();
+  const pmpkFields = pmpk.document?.confirmed ?? null;
+  // "parsed" follows the server: a recognised or confirmed document is waiting for the parent.
+  const docReady = pmpk.document?.status === "needs_review" || pmpk.document?.status === "confirmed";
+  const phase: Phase = stage === "upload" && docReady ? "parsed" : stage;
   const [centerId, setCenterId] = useState<string | null>(null);
   const [searchProgress, setSearchProgress] = useState(0);
   const [bookingError, setBookingError] = useState<string | null>(null);
@@ -80,7 +89,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
   const stats = weekStats(program.items, appointments);
   const missed = appointments.find((a) => a.status === "MISSED");
   const rebook = missed ? findReschedule(missed, weekSlots, appointments, weekEnd) : null;
-  const feed = feedFor(phase, booking);
+  const feed = feedFor(phase, booking, pmpk);
 
   useEffect(() => {
     if (phase !== "searching") return;
@@ -121,14 +130,17 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
   }
 
   async function resetInterview() {
-    if (!confirm("Сбросить ответы анкеты?")) return;
+    if (!confirm("Сбросить ответы анкеты и документ ПМПК с файлом?")) return;
     const res = await fetch("/api/interview/reset", { method: "POST" });
     if (res.ok) location.reload();
-    else alert("Не удалось сбросить анкету.");
+    else alert((await res.json().catch(() => null))?.error?.message ?? "Не удалось сбросить анкету.");
   }
 
   const nextStep = (() => {
-    if (!after(phase, "searching")) return { title: "Загрузить заключение ПМПК", text: "AI-куратор определит следующий этап по документу.", status: "Ждёт документа" };
+    if (phase === "parsed") return pmpk.document?.status === "confirmed"
+      ? { title: "Подобрать КППК", text: "Заключение подтверждено. Запустите подбор кабинета справа.", status: "Можно начинать" }
+      : { title: "Проверить разбор ПМПК", text: "Сверьте данные, которые AI-куратор прочитал в документе.", status: "Ждёт проверки" };
+    if (!after(phase, "searching")) return { title: "Загрузить заключение ПМПК", text: "AI-куратор определит следующий этап по документу.", status: pmpk.document?.status === "parsing" ? "Идёт разбор" : "Ждёт документа" };
     if (phase === "searching") return { title: "Подобрать КППК", text: "AI-куратор проверяет организации и время приёма.", status: "Идёт поиск" };
     if (phase === "centers") return { title: "Записаться в КППК", text: searchProblem ?? "Проверьте предложенный кабинет и подтвердите время справа.", status: searchProblem ? "Нужна помощь" : "Ждёт подтверждения" };
     if (phase === "booking-check") return { title: "Записаться в КППК", text: "Проверяю выбранное время перед созданием записи.", status: "Идёт проверка" };
@@ -196,11 +208,11 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
                 {isCompleted && <div className="stage-details" id={`stage-details-${step.stage}`} hidden={!isOpen}>
                   <p className="readonly-note">Просмотр завершённого этапа. Изменение данных здесь недоступно.</p>
                   {step.stage === "SPECIALIST_CONSULTATION" && <p>Сведения о консультации пока не добавлены.</p>}
-                  {step.stage === "PMPK" && <dl className="stage-facts">
-                    <div><dt>Документ</dt><dd>{pmpkParse.type} от {pmpkParse.date}</dd></div>
-                    <div><dt>Направление</dt><dd>{pmpkParse.nextRoute}</dd></div>
-                    <div><dt>Рекомендации</dt><dd>{[...pmpkParse.specialists, pmpkParse.format].join("; ")}</dd></div>
-                  </dl>}
+                  {step.stage === "PMPK" && (pmpkFields ? <dl className="stage-facts">
+                    <div><dt>Документ</dt><dd>Заключение ПМПК{(pmpkFields.issued_on ?? pmpkFields.consultation_on) && ` от ${formatDate((pmpkFields.issued_on ?? pmpkFields.consultation_on)!)}`}</dd></div>
+                    {pmpkFields.next_route && <div><dt>Направление</dt><dd>{nextRouteLabels[pmpkFields.next_route]}</dd></div>}
+                    {recommendations(pmpkFields).length > 0 && <div><dt>Рекомендации</dt><dd>{recommendations(pmpkFields).join("; ")}</dd></div>}
+                  </dl> : <p>Сведения о документе пока не добавлены.</p>)}
                   {step.stage === "KPPK" && (kppkBooking && center
                     ? <dl className="stage-facts">
                       <div><dt>Кабинет</dt><dd>{center.name}, {center.address}</dd></div>
@@ -248,33 +260,13 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
             })}
             {phase === "booking-check" && <li className="is-pending"><span className="activity-icon" aria-hidden="true"><CircleDashed size={16} /></span><div><strong>Проверяю выбранное время перед записью</strong><p>Проверяю</p></div></li>}
             {bookingError && phase === "centers" && <li className="is-error"><span className="activity-icon" aria-hidden="true"><Clock3 size={16} /></span><div><strong>Запись не создана</strong><p>{bookingError}</p></div></li>}
+            {phase === "upload" && pmpk.document?.status === "failed" && pmpk.busy !== "parse" && <li className="is-error"><span className="activity-icon" aria-hidden="true"><Clock3 size={16} /></span><div><strong>Не удалось прочитать документ</strong><p>{pmpk.document.error?.message ?? "Нужна помощь"}</p></div></li>}
             {phase !== "searching" && phase !== "booking-check" && !searchProblem && <li className="is-pending"><span className="activity-icon"><CircleDashed size={16} /></span><div><strong>{feed.pending}</strong></div></li>}
           </ol>
           {showCenterSearch && <p className="sr-only" role="status">{phase === "booking-check" ? "Проверяю возможность записи" : phase === "searching" ? ["Проверяю список КППК", "Сверяю возраст и услуги", "Проверяю расписание", "Проверка завершена"][searchProgress] : bookingError ?? searchProblem ?? "Проверка завершена. Выберите и подтвердите время."}</p>}
 
           <div className="agent-offer">
-            {phase === "upload" && <>
-              <div className="offer-topline"><span>Добавить документ</span></div>
-              <h3>Загрузите заключение ПМПК</h3>
-              <p>Я прочитаю документ и найду следующий этап маршрута. Подойдут PDF или фото.</p>
-              {/* ponytail: any file yields the case C parse; real extraction waits for the personal-data decision. */}
-              <label className="upload-drop">
-                <FileUp size={20} /><span>Выбрать файл</span>
-                <input type="file" accept=".pdf,image/*" className="sr-only" onChange={(e) => { if (e.target.files?.length) setPhase("parsed"); }} />
-              </label>
-            </>}
-
-            {phase === "parsed" && <>
-              <div className="offer-topline"><span>AI обработал документ</span></div>
-              <dl className="answers-summary parse-list">
-                <div><dt>Тип</dt><dd>{pmpkParse.type}</dd></div>
-                <div><dt>Дата</dt><dd>{pmpkParse.date}</dd></div>
-                <div><dt>Направление</dt><dd>{pmpkParse.nextRoute}</dd></div>
-                <div><dt>Рекомендации</dt><dd>{[...pmpkParse.specialists, pmpkParse.format].join("; ")}</dd></div>
-              </dl>
-              <blockquote className="parse-quote"><FileText size={14} /> {pmpkParse.quote}</blockquote>
-              <Button className="confirm-slot" onClick={startCenterSearch}>Всё верно — найти КППК <ArrowRight size={16} /></Button>
-            </>}
+            {(phase === "upload" || phase === "parsed") && <PmpkOffer pmpk={pmpk} onConfirmed={startCenterSearch} />}
 
             {phase === "searching" && <>
               <div className="offer-topline"><span>Подбор КППК{city ? ` · ${city}` : ""}</span></div>
