@@ -9,7 +9,8 @@
     "lint": "eslint",
     "seed:demo": "node scripts/seed-demo-users.mjs",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed:catalog": "tsx scripts/seed-catalog.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

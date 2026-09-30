@@ -18,8 +18,9 @@ Next.js demo with real Supabase Auth for two roles: parent and curator. Plan: [P
    for f in supabase/migrations/*.sql; do psql "$POSTGRES_URL_NON_POOLING" -v ON_ERROR_STOP=1 -f "$f"; done
    ```
 
-3. Run `pnpm install`, then `pnpm seed:demo`. The seed command creates or updates two confirmed demo users and assigns their roles.
+3. Run `pnpm install`, then `pnpm seed:demo` and `pnpm seed:catalog`. The first creates or updates two confirmed demo users and assigns their roles; the second publishes the service catalog from `src/domain/catalog/v1.ts` (idempotent; a published version is immutable, so a change needs a new `catalog_version`).
 4. Run `pnpm dev` and open `http://localhost:3000/login`.
+5. Checks: `pnpm test` (domain rules, no network), `pnpm typecheck`, `pnpm lint`.
 
 ## Configuration
 
