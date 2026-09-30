@@ -39,11 +39,10 @@ function feedFor(phase: Phase, booking: string) {
   const done: string[] = [];
   if (after(phase, "parsed")) done.push("Прочитал заключение ПМПК");
   if (after(phase, "searching")) done.push("Определил следующий этап — КППК");
-  if (after(phase, "booked")) done.push(`Записал на ${booking}`);
-  if (after(phase, "program")) done.push("КППК пройден", "Индивидуальная программа получена", "Программа добавлена в трекер");
-  if (after(phase, "schedule")) done.push("Нашёл свободные слоты специалистов");
-  if (after(phase, "scheduled")) done.push("Создал записи на неделю");
-  if (after(phase, "control")) done.push("Сверил посещения недели с программой");
+  if (after(phase, "booked")) done.push(`Записал в КППК на ${booking}`);
+  if (after(phase, "program")) done.push("Получил программу из КППК");
+  if (after(phase, "scheduled")) done.push("Записал на занятия недели");
+  if (after(phase, "control")) done.push("Сверил посещения с программой");
   if (after(phase, "rescheduled")) done.push("Перезаписал пропущенное занятие");
   const pending: Record<Phase, string> = {
     upload: "Жду документ от семьи", parsed: "Жду вашей проверки разбора", searching: "Проверяю КППК",
@@ -138,7 +137,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
     return { title: "Реабилитация по программе", text: `Следующая контрольная оценка — ${nextAssessment}.`, status: "В работе" };
   })();
 
-  const showCenterSearch = after(phase, "searching");
+  const showCenterSearch = phase === "searching" || phase === "centers" || phase === "booking-check";
   const visibleSearchSteps = phase === "searching" ? Math.min(searchProgress + 1, 3) : 3;
   const searchActions = [
     { title: `Проверил список КППК: ${kppkCenters.length} организации`, error: false },
@@ -238,7 +237,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
         </CardHeader>
         <CardContent className="agent-content">
           <ol className="agent-activity" aria-label="Действия AI-куратора">
-            {feed.done.map((item) => <li key={item}><span className="activity-icon"><CircleCheck size={16} /></span><div><strong>{item}</strong></div></li>)}
+            {feed.done.slice(-3).map((item) => <li key={item}><span className="activity-icon"><CircleCheck size={16} /></span><div><strong>{item}</strong></div></li>)}
             {showCenterSearch && searchActions.slice(0, visibleSearchSteps).map((item, index) => {
               const pending = phase === "searching" && searchProgress <= index;
               return <li key={index} className={pending ? "is-pending" : item.error ? "is-error" : ""}>

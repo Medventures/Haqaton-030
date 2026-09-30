@@ -171,6 +171,9 @@ input:focus-visible, button:focus-visible { outline: 3px solid #66bd91; outline-
 .node-dot { width: 10px; height: 10px; border-radius: 50%; background: #176346; }
 .agent-activity .is-pending strong { color: #205273; }
 .agent-activity .is-pending .activity-icon { background: #e7f2f9; color: #205273; }
+.agent-activity .is-pending .activity-icon svg { animation: activity-spin 1.4s linear infinite; }
+@keyframes activity-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .agent-activity .is-pending .activity-icon svg { animation: none; } }
 .agent-activity .is-error strong, .agent-activity .is-error p { color: #a12a27; }
 .agent-activity .is-error .activity-icon { background: #fbe9e7; color: #a12a27; }
 .agent-activity li:has(> :nth-child(2):last-child) { grid-template-columns: 34px minmax(0, 1fr); align-items: center; padding: .4rem 0; }
