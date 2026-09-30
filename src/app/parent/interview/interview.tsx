@@ -122,7 +122,7 @@ export default function Interview({ initialAnswers, initialCompleted }: { initia
   }
 
   return <section className="dashboard-card interview-card" aria-labelledby="question-title">
-    <p className="demo-prefill-note">Часть ответов уже заполнена по вашему профилю. Ответьте на оставшиеся вопросы или вернитесь назад, чтобы проверить остальные.</p>
+    <p className="demo-prefill-note">Часть ответов заполнена по вашему профилю — осталось ответить на последние вопросы.</p>
     <div className="interview-progress"><span>Вопрос {step + 1} из {questions.length}</span><span>{Math.round((step / questions.length) * 100)}%</span></div>
     <progress value={step} max={questions.length} aria-label="Прогресс опроса" />
     <h2 id="question-title">{question.title}</h2>

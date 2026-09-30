@@ -12,15 +12,8 @@ export default async function ParentPage() {
   const { data: session, error: sessionError } = await supabase.from("interview_sessions")
     .select("answers_json, status").eq("parent_id", profile.id).maybeSingle();
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Almaty" }).format(new Date());
-  const todayLabel = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", timeZone: "Asia/Almaty" }).format(new Date());
   return (
     <><Navbar profile={profile} /><main className="dashboard-shell">
-      <section className="dashboard-card dashboard-intro">
-        <div><span className="role-tag">Кабинет родителя</span>
-          <h1>Здравствуйте, {profile.fullName || "родитель"}</h1>
-          <p>Ваш маршрут и работа агента в одном месте.</p></div>
-        <div className="intro-count"><span>Сегодня</span><strong>{todayLabel}</strong></div>
-      </section>
       {sessionError && <p className="form-error" role="alert">Не удалось загрузить опрос. Обновите страницу или проверьте подключение к Supabase.</p>}
       <ParentJourney answers={(session?.answers_json as Answers | null) ?? {}} completed={session?.status === "completed"} today={today} />
     </main></>

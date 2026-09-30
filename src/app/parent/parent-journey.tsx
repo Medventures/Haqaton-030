@@ -82,7 +82,7 @@ export default function ParentJourney({ answers, completed, today }: { answers: 
 
   return <>
     <div className="journey-heading">
-      <h2>Ваш маршрут и работа агента</h2>
+      <h1>Ваш маршрут и работа агента</h1>
     </div>
 
     <div className="journey-grid">
