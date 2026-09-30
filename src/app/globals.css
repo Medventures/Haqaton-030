@@ -29,7 +29,7 @@ input:focus-visible, button:focus-visible { outline: 3px solid #66bd91; outline-
 .dashboard-intro h1 { margin: .35rem 0 .15rem; font-size: clamp(1.3rem, 2.2vw, 1.6rem); }
 .dashboard-intro p { margin: 0; max-width: 700px; }
 .intro-count { display: grid; gap: .15rem; min-width: 155px; padding-left: 1.5rem; border-left: 1px solid #d9e4dc; }
-.intro-count strong { font-size: 1.8rem; line-height: 1; color: #176346; }
+.intro-count strong { font-size: 1.4rem; line-height: 1; color: #176346; }
 .intro-count span { max-width: 130px; color: #62766a; font-size: .8rem; }
 .journey-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: .6rem; }
 .panel-kicker { color: #28775e; font-size: .72rem; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
@@ -45,7 +45,7 @@ input:focus-visible, button:focus-visible { outline: 3px solid #66bd91; outline-
 .journey-panel-header h3 { font-size: 1.2rem; }
 .journey-panel-header p { margin: .75rem 0 0; font-size: .84rem; }
 .route-panel > [data-slot="card-content"] { padding: 1.4rem 1.6rem 1.8rem; }
-.route-timeline { list-style: none; margin: 0; padding: 0 0 0 .45rem; }
+.route-timeline { list-style: none; margin: 0; padding: .3rem .5rem 0 .45rem; max-height: 640px; overflow-y: auto; overscroll-behavior: contain; }
 .timeline-step { display: grid; grid-template-columns: 31px minmax(0, 1fr); gap: 1rem; position: relative; padding-bottom: 2rem; }
 .timeline-step:not(:last-child)::before { content: ""; position: absolute; left: 15px; top: 30px; bottom: 0; width: 2px; background: #dce8df; }
 .timeline-step:last-child { padding-bottom: 0; }
@@ -59,6 +59,8 @@ input:focus-visible, button:focus-visible { outline: 3px solid #66bd91; outline-
 .step-state { display: inline-flex; border-radius: 100px; padding: .3rem .6rem; background: #e7f3e9; color: #176346; font-size: .72rem; font-weight: 800; }
 .is-upcoming .step-state { background: #f1f4f1; color: #6c7e72; }
 .is-current .step-state { background: #e7f2f9; color: #205273; }
+.step-state.is-personal { gap: .3rem; align-items: center; margin-left: .4rem; background: #f3eefb; color: #5b3f8c; }
+.is-upcoming .timeline-body h3 { color: #3d5046; }
 .agent-content { padding: 1.25rem 1.6rem 1.6rem; }
 .context-strip { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem; padding-bottom: 1rem; border-bottom: 1px solid #e8eee9; color: #617669; font-size: .79rem; font-weight: 700; }
 .context-strip > div { display: flex; flex-wrap: wrap; gap: .35rem; }
@@ -122,6 +124,7 @@ input:focus-visible, button:focus-visible { outline: 3px solid #66bd91; outline-
 .profile-list dt { color: #62766a; }
 .profile-list dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; text-align: right; }
 .interview-card { margin-top: 0; }
+.interview-panel .interview-card { margin: 0; padding: 0; border: 0; box-shadow: none; }
 .interview-progress { display: flex; justify-content: space-between; font-size: .85rem; font-weight: 700; color: #527466; }
 .interview-card progress { width: 100%; height: .55rem; accent-color: #176346; margin: .8rem 0 1.5rem; }
 .interview-card h2, .interview-done h2 { font-size: clamp(1.4rem, 4vw, 2rem); line-height: 1.25; margin: 0 0 .4rem; }

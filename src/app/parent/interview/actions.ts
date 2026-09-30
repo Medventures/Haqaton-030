@@ -9,15 +9,16 @@ async function parentClient() {
   return { profile, supabase: await createClient() };
 }
 
-export async function saveAnswer(id: QuestionId, value: unknown) {
-  if (!questions.some((question) => question.id === id) || !validAnswer(id, value)) {
+export async function saveAnswers(values: Answers) {
+  const entries = Object.entries(values) as [QuestionId, unknown][];
+  if (entries.length === 0 || !entries.every(([id, value]) => questions.some((question) => question.id === id) && validAnswer(id, value))) {
     return { error: "Проверьте ответ перед продолжением." };
   }
   const { profile, supabase } = await parentClient();
   const { data, error: readError } = await supabase.from("interview_sessions")
     .select("answers_json").eq("parent_id", profile.id).maybeSingle();
   if (readError) return { error: "Не удалось загрузить ответы. Проверьте настройку базы." };
-  const answers: Answers = { ...(data?.answers_json as Answers | null ?? {}), [id]: value };
+  const answers: Answers = { ...(data?.answers_json as Answers | null ?? {}), ...values };
   const { error } = await supabase.from("interview_sessions").upsert({
     parent_id: profile.id,
     answers_json: answers,

@@ -32,8 +32,6 @@ export const demoAnswers: Answers = {
   DISABILITY_STATUS: "no",
   HELP_PREFERENCE: "state",
   CURRENT_HELP: "none",
-  CURRENT_SERVICES: "none",
-  MAIN_PRIORITY: "start",
 };
 
 const completedStages = ["specialists", "pmpk", "disability", "rehabilitation", "none"];

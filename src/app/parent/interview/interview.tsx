@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { demoAnswers, questions, services, validAnswer, type Answers, type QuestionId } from "@/lib/interview";
-import { completeInterview, saveAnswer } from "./actions";
+import { completeInterview, saveAnswers } from "./actions";
 
 const choices: Partial<Record<QuestionId, { value: string; label: string }[]>> = {
   COMPLETED_STAGES: [
@@ -53,7 +53,7 @@ export default function Interview({ initialAnswers, initialCompleted }: { initia
   const router = useRouter();
   const [answers, setAnswers] = useState<Answers>({ ...demoAnswers, ...initialAnswers });
   const [step, setStep] = useState(() => {
-    const first = questions.findIndex(({ id }) => !validAnswer(id, initialAnswers[id]));
+    const first = questions.findIndex(({ id }) => !validAnswer(id, ({ ...demoAnswers, ...initialAnswers })[id]));
     return first < 0 ? questions.length - 1 : first;
   });
   const [completed, setCompleted] = useState(initialCompleted);
@@ -74,7 +74,8 @@ export default function Interview({ initialAnswers, initialCompleted }: { initia
     if (!validAnswer(question.id, value)) { setError("Выберите или заполните ответ."); return; }
     startTransition(async () => {
       try {
-        const saved = await saveAnswer(question.id, value);
+        // Prefilled answers are saved together with the first answer the parent gives.
+        const saved = await saveAnswers(Object.fromEntries(questions.slice(0, step + 1).map(({ id }) => [id, answers[id]])));
         if (saved.error) { setError(saved.error); return; }
         if (step < questions.length - 1) { setStep(step + 1); return; }
         const result = await completeInterview();
@@ -121,7 +122,7 @@ export default function Interview({ initialAnswers, initialCompleted }: { initia
   }
 
   return <section className="dashboard-card interview-card" aria-labelledby="question-title">
-    <p className="demo-prefill-note">Ответы уже выбраны. При необходимости измените их перед сохранением.</p>
+    <p className="demo-prefill-note">Часть ответов уже заполнена по вашему профилю. Ответьте на оставшиеся вопросы или вернитесь назад, чтобы проверить остальные.</p>
     <div className="interview-progress"><span>Вопрос {step + 1} из {questions.length}</span><span>{Math.round((step / questions.length) * 100)}%</span></div>
     <progress value={step} max={questions.length} aria-label="Прогресс опроса" />
     <h2 id="question-title">{question.title}</h2>

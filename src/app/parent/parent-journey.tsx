@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   ArrowRight, CalendarDays, Check, CircleCheck, ClipboardList,
-  Clock3, FileText, MapPin, Search, Sparkles,
+  Clock3, FileText, MapPin, Search, Sparkles, Stethoscope,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,55 @@ import type { Answers } from "@/lib/interview";
 import Interview from "./interview/interview";
 
 const slots = [
-  { id: "a", day: "14 октября", time: "10:00", provider: "Центр развития «Қадам»" },
-  { id: "b", day: "16 октября", time: "14:30", provider: "Центр поддержки «Шуақ»" },
+  { id: "a", offset: 14, time: "10:00", provider: "Центр развития «Қадам»" },
+  { id: "b", offset: 16, time: "14:30", provider: "Центр поддержки «Шуақ»" },
 ] as const;
+
+type EventState = "done" | "current" | "upcoming";
+type RouteEvent = { id: string; offset: number; title: string; text: string; label: string; state: EventState; icon: React.ReactNode; personal?: boolean };
+
+// `today` is a YYYY-MM-DD date from the server, so server and client render the same labels.
+function formatDay(today: string, offset: number) {
+  const date = new Date(`${today}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + offset);
+  return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", weekday: "short", timeZone: "UTC" }).format(date);
+}
+
+function relative(offset: number) {
+  if (offset === 1) return "Завтра";
+  if (offset < 7) return `Через ${offset} ${offset < 5 ? "дня" : "дней"}`;
+  if (offset < 30) { const weeks = Math.round(offset / 7); return `Через ${weeks} ${weeks === 1 ? "неделю" : weeks < 5 ? "недели" : "недель"}`; }
+  const months = Math.round(offset / 30);
+  return `Через ${months} ${months === 1 ? "месяц" : months < 5 ? "месяца" : "месяцев"}`;
+}
+
+// ponytail: fixed 10-event route; the agent will build and extend it from Case Plan later.
+function routeEvents(completed: boolean, chosen: (typeof slots)[number] | undefined, city: string): RouteEvent[] {
+  return [
+    { id: "interview", offset: 0, title: "Расскажите о ситуации", icon: "1",
+      text: completed ? "Ответы сохранены, агент учёл их в маршруте." : "Ответьте на вопросы справа — агент подберёт шаги под вашу семью.",
+      label: completed ? "Готово" : "Сейчас", state: completed ? "done" : "current" },
+    { id: "slot", offset: 0, title: chosen ? "Время программы выбрано" : "Выберите время программы", icon: <CalendarDays size={15} />,
+      text: chosen ? `${chosen.provider}, ${chosen.time}.` : "Агент нашёл программу ранней помощи и свободные слоты.",
+      label: !completed ? "После опроса" : chosen ? "Готово" : "Вместе с агентом", state: !completed ? "upcoming" : chosen ? "done" : "current", personal: completed },
+    { id: "pediatrician", offset: 3, title: "Приём у педиатра", icon: <Stethoscope size={15} />,
+      text: `Получить направление на ПМПК в поликлинике${completed ? ` (${city})` : ""}.`, label: "Запланировано", state: "upcoming", personal: completed },
+    { id: "pmpk-apply", offset: 6, title: "Заявление на ПМПК через eGov", icon: <FileText size={15} />,
+      text: "Дату обследования назначат в течение 2 рабочих дней.", label: "Агент напомнит", state: "upcoming" },
+    { id: "program", offset: chosen?.offset ?? 14, title: "Первое занятие ранней помощи", icon: <Sparkles size={15} />,
+      text: chosen ? `${chosen.provider}, начало в ${chosen.time}.` : "Дата появится после выбора времени.", label: chosen ? "Записаны" : "Ждёт выбора", state: "upcoming", personal: Boolean(chosen) },
+    { id: "pmpk-exam", offset: 21, title: "Обследование ПМПК", icon: <ClipboardList size={15} />,
+      text: "Возьмите направление, свидетельство о рождении и выписки врачей.", label: "Ожидается", state: "upcoming" },
+    { id: "pmpk-result", offset: 28, title: "Заключение ПМПК", icon: <FileText size={15} />,
+      text: "Агент обновит маршрут по рекомендациям комиссии.", label: "Ожидается", state: "upcoming" },
+    { id: "documents", offset: 45, title: "Документы на коррекционную поддержку", icon: <FileText size={15} />,
+      text: "Подготовить пакет по заключению ПМПК.", label: "Следующий этап", state: "upcoming" },
+    { id: "review", offset: 90, title: "Промежуточный итог программы", icon: <CircleCheck size={15} />,
+      text: "Обсудить прогресс со специалистом и скорректировать план.", label: "Следующий этап", state: "upcoming" },
+    { id: "reassessment", offset: 180, title: "Повторная оценка маршрута", icon: <Search size={15} />,
+      text: "Агент проверит, какие услуги продолжить и что добавить.", label: "Следующий этап", state: "upcoming" },
+  ];
+}
 
 function contextFrom(answers: Answers) {
   const residence = answers.RESIDENCE;
@@ -27,11 +73,12 @@ function contextFrom(answers: Answers) {
   return { city, age };
 }
 
-export default function ParentJourney({ answers, completed }: { answers: Answers; completed: boolean }) {
+export default function ParentJourney({ answers, completed, today }: { answers: Answers; completed: boolean; today: string }) {
   const [selectedSlot, setSelectedSlot] = useState<(typeof slots)[number]["id"] | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const { city, age } = contextFrom(answers);
   const chosen = slots.find((slot) => slot.id === selectedSlot);
+  const events = routeEvents(completed, confirmed ? chosen : undefined, city);
 
   return <>
     <div className="journey-heading">
@@ -42,55 +89,36 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
       <Card className="journey-panel route-panel">
         <CardHeader className="journey-panel-header">
           <div className="panel-heading"><span className="panel-icon"><ClipboardList size={20} /></span>
-            <div><span className="panel-kicker">Ваш план</span><CardTitle>Маршрут по шагам</CardTitle></div>
+            <div><span className="panel-kicker">Ваш план</span><CardTitle>Календарь маршрута</CardTitle></div>
           </div>
-          <p>Действия и сроки подобраны по вашим ответам.</p>
+          <p>Что можно сделать сегодня и что ждёт семью дальше.</p>
         </CardHeader>
         <CardContent>
-          <ol className="route-timeline">
-            <li className={completed ? "timeline-step is-done" : "timeline-step is-current"}>
-              <span className="timeline-node">{completed ? <Check size={17} /> : "1"}</span>
+          <ol className="route-timeline" aria-label="События маршрута">
+            {events.map((event) => <li key={event.id} className={`timeline-step is-${event.state}`}>
+              <span className="timeline-node">{event.state === "done" ? <Check size={17} /> : event.icon}</span>
               <div className="timeline-body">
-                <span className="timeline-period">Сейчас</span>
-                <h3>Расскажите о ситуации</h3>
-                <p>{completed ? "Ответы интервью сохранены." : "Ответьте на 10 вопросов, чтобы уточнить контекст."}</p>
-                <span className="step-state">{completed ? "Готово" : "Текущий шаг"}</span>
+                <span className="timeline-period">{event.offset === 0 ? "Сегодня" : relative(event.offset)} · {formatDay(today, event.offset)}</span>
+                <h3>{event.title}</h3>
+                <p>{event.text}</p>
+                <span className="step-state">{event.label}</span>
+                {event.personal && <span className="step-state is-personal"><Sparkles size={12} /> Уточнено агентом</span>}
               </div>
-            </li>
-            <li className="timeline-step is-done">
-              <span className="timeline-node"><Check size={17} /></span>
-              <div className="timeline-body">
-                <span className="timeline-period">Подготовка</span>
-                <h3>Агент изучает варианты</h3>
-                <p>Показывает, какие программы и слоты могут подойти семье.</p>
-                <span className="step-state">Пример поиска</span>
-              </div>
-            </li>
-            <li className={confirmed ? "timeline-step is-done" : "timeline-step is-current"}>
-              <span className="timeline-node">{confirmed ? <Check size={17} /> : "3"}</span>
-              <div className="timeline-body">
-                <span className="timeline-period">Октябрь 2026</span>
-                <h3>{confirmed ? "Вы выбрали время" : "Выберите удобное время"}</h3>
-                <p>{confirmed && chosen
-                  ? `${chosen.day}, ${chosen.time} · ${chosen.provider}. Выбор сохранён только на этой странице.`
-                  : "Сравните предложенные даты и подтвердите подходящий вариант."}</p>
-                <span className="step-state">{confirmed ? "Выбор подтверждён" : "Нужно ваше решение"}</span>
-              </div>
-            </li>
-            <li className="timeline-step is-upcoming">
-              <span className="timeline-node"><FileText size={17} /></span>
-              <div className="timeline-body">
-                <span className="timeline-period">Перед визитом</span>
-                <h3>Подготовьте документы</h3>
-                <p>После выбора услуги агент покажет список и порядок подготовки.</p>
-                <span className="step-state">Следующий этап</span>
-              </div>
-            </li>
+            </li>)}
           </ol>
         </CardContent>
       </Card>
 
-      <Card className="journey-panel agent-panel">
+      {!completed ? <Card className="journey-panel interview-panel">
+        <CardHeader className="journey-panel-header">
+          <div className="panel-heading"><span className="panel-icon"><ClipboardList size={20} /></span>
+            <div><span className="panel-kicker">Шаг 1</span><CardTitle>Расскажите о ситуации</CardTitle></div>
+          </div>
+        </CardHeader>
+        <CardContent className="agent-content">
+          <Interview initialAnswers={answers} initialCompleted={completed} />
+        </CardContent>
+      </Card> : <Card className="journey-panel agent-panel">
         <CardHeader className="journey-panel-header">
           <div className="panel-heading"><span className="panel-icon agent-icon"><Sparkles size={20} /></span>
             <div><span className="panel-kicker">Работа агента</span><CardTitle>Как найдено предложение</CardTitle></div>
@@ -119,7 +147,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
                 className={selectedSlot === slot.id ? "slot-option is-selected" : "slot-option"}
                 onClick={() => { setSelectedSlot(slot.id); setConfirmed(false); }}>
                 <span className="slot-radio" aria-hidden="true" />
-                <span><strong>{slot.day} · {slot.time}</strong><small>{slot.provider}</small></span>
+                <span><strong>{formatDay(today, slot.offset)} · {slot.time}</strong><small>{slot.provider}</small></span>
                 <Clock3 size={16} aria-hidden="true" />
               </button>)}
             </div>
@@ -129,16 +157,16 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
             {confirmed && chosen && <div className="agent-result" role="status">
               <CircleCheck size={20} />
               <div><strong>Ваш выбор добавлен в маршрут</strong>
-                <p>{chosen.provider} · {chosen.day} в {chosen.time}. Заявка отправлена в центр.</p></div>
+                <p>{chosen.provider} · {formatDay(today, chosen.offset)} в {chosen.time}. Заявка отправлена в центр.</p></div>
             </div>}
           </div>
         </CardContent>
-      </Card>
+      </Card>}
     </div>
 
-    <details className="interview-details" open={!completed}>
+    {completed && <details className="interview-details">
       <summary><span><ClipboardList size={18} /> Ответы интервью</span><span>Открыть и изменить</span></summary>
       <Interview initialAnswers={answers} initialCompleted={completed} />
-    </details>
+    </details>}
   </>;
 }
