@@ -89,7 +89,7 @@ export default function Interview({ initialAnswers, initialCompleted }: { initia
   if (completed && !editing) return <section className="dashboard-card interview-done">
     <span className="role-tag">10 из 10 вопросов</span>
     <h2>Ответы сохранены</h2>
-    <p>Откройте демонстрационный маршрут выше. При изменении ответов контекст обновится после завершения опроса.</p>
+    <p>Откройте маршрут выше. При изменении ответов контекст обновится после завершения опроса.</p>
     <button className="secondary-button" type="button" onClick={() => { setStep(0); setEditing(true); }}>Изменить ответы</button>
   </section>;
 
@@ -121,7 +121,7 @@ export default function Interview({ initialAnswers, initialCompleted }: { initia
   }
 
   return <section className="dashboard-card interview-card" aria-labelledby="question-title">
-    <p className="demo-prefill-note">Демо: ответы уже выбраны. При необходимости измените их перед сохранением.</p>
+    <p className="demo-prefill-note">Ответы уже выбраны. При необходимости измените их перед сохранением.</p>
     <div className="interview-progress"><span>Вопрос {step + 1} из {questions.length}</span><span>{Math.round((step / questions.length) * 100)}%</span></div>
     <progress value={step} max={questions.length} aria-label="Прогресс опроса" />
     <h2 id="question-title">{question.title}</h2>

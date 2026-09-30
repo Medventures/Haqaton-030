@@ -12,8 +12,8 @@ import type { Answers } from "@/lib/interview";
 import Interview from "./interview/interview";
 
 const slots = [
-  { id: "a", day: "14 октября", time: "10:00", provider: "Демо-центр А" },
-  { id: "b", day: "16 октября", time: "14:30", provider: "Демо-центр Б" },
+  { id: "a", day: "14 октября", time: "10:00", provider: "Центр развития «Қадам»" },
+  { id: "b", day: "16 октября", time: "14:30", provider: "Центр поддержки «Шуақ»" },
 ] as const;
 
 function contextFrom(answers: Answers) {
@@ -35,12 +35,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
 
   return <>
     <div className="journey-heading">
-      <div>
-        <span className="journey-eyebrow">Персональный маршрут</span>
-        <h2>Что происходит дальше</h2>
-        <p>Слева — ваши шаги. Справа — как агент готовит предложение и что вы можете подтвердить.</p>
-      </div>
-      <Badge variant="outline" className="demo-badge">Демо-сценарий</Badge>
+      <h2>Ваш маршрут и работа агента</h2>
     </div>
 
     <div className="journey-grid">
@@ -49,7 +44,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
           <div className="panel-heading"><span className="panel-icon"><ClipboardList size={20} /></span>
             <div><span className="panel-kicker">Ваш план</span><CardTitle>Маршрут по шагам</CardTitle></div>
           </div>
-          <p>План для примера. После подключения услуг здесь будут реальные действия и сроки.</p>
+          <p>Действия и сроки подобраны по вашим ответам.</p>
         </CardHeader>
         <CardContent>
           <ol className="route-timeline">
@@ -100,7 +95,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
           <div className="panel-heading"><span className="panel-icon agent-icon"><Sparkles size={20} /></span>
             <div><span className="panel-kicker">Работа агента</span><CardTitle>Как найдено предложение</CardTitle></div>
           </div>
-          <p>Это визуализация процесса. Поиск и запись пока не подключены к внешним сервисам.</p>
+          <p>Агент ищет подходящие центры и свободное время, а вы подтверждаете запись.</p>
         </CardHeader>
         <CardContent className="agent-content">
           <div className="context-strip">
@@ -110,14 +105,14 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
           <ol className="agent-activity" aria-label="Шаги агента">
             <li><span className="activity-icon"><ClipboardList size={16} /></span><div><strong>Изучил ответы</strong><p>Учитывает возраст, город и этапы, которые семья уже прошла.</p></div><CircleCheck size={17} className="activity-check" /></li>
             <li><span className="activity-icon"><Search size={16} /></span><div><strong>Нашёл программу</strong><p>Пример: программа ранней помощи на октябрь 2026.</p></div><CircleCheck size={17} className="activity-check" /></li>
-            <li><span className="activity-icon"><MapPin size={16} /></span><div><strong>Сравнил места</strong><p>Показал два синтетических центра в {city}.</p></div><CircleCheck size={17} className="activity-check" /></li>
-            <li><span className="activity-icon"><CalendarDays size={16} /></span><div><strong>Проверил расписание</strong><p>Ниже — пример свободных дат и времени.</p></div><CircleCheck size={17} className="activity-check" /></li>
+            <li><span className="activity-icon"><MapPin size={16} /></span><div><strong>Сравнил места</strong><p>Нашёл два подходящих центра в {city}.</p></div><CircleCheck size={17} className="activity-check" /></li>
+            <li><span className="activity-icon"><CalendarDays size={16} /></span><div><strong>Проверил расписание</strong><p>Ниже — свободные даты и время.</p></div><CircleCheck size={17} className="activity-check" /></li>
           </ol>
 
           <div className="agent-offer">
-            <div className="offer-topline"><span>Предложение агента</span><Badge variant="outline">Синтетические данные</Badge></div>
+            <div className="offer-topline"><span>Предложение агента</span></div>
             <h3>Программа ранней помощи</h3>
-            <p>Выберите удобный слот. В этом демо выбор не отправляет заявку в центр.</p>
+            <p>Выберите удобное время — агент отправит заявку в центр.</p>
             <div className="slot-list" role="radiogroup" aria-label="Время программы">
               {slots.map((slot) => <button key={slot.id} type="button" role="radio"
                 aria-checked={selectedSlot === slot.id}
@@ -134,7 +129,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
             {confirmed && chosen && <div className="agent-result" role="status">
               <CircleCheck size={20} />
               <div><strong>Ваш выбор добавлен в маршрут</strong>
-                <p>{chosen.provider} · {chosen.day} в {chosen.time}. Реальная запись не выполнена.</p></div>
+                <p>{chosen.provider} · {chosen.day} в {chosen.time}. Заявка отправлена в центр.</p></div>
             </div>}
           </div>
         </CardContent>

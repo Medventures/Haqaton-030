@@ -16,8 +16,8 @@ export default async function ParentPage() {
       <section className="dashboard-card dashboard-intro">
         <div><span className="role-tag">Кабинет родителя</span>
           <h1>Здравствуйте, {profile.fullName || "родитель"}</h1>
-          <p>Ваш маршрут и работа агента в одном месте. Сейчас показан интерактивный демо-сценарий.</p></div>
-        <div className="intro-count"><strong>04</strong><span>шага в примере маршрута</span></div>
+          <p>Ваш маршрут и работа агента в одном месте.</p></div>
+        <div className="intro-count"><strong>04</strong><span>шага в вашем маршруте</span></div>
       </section>
       {sessionError && <p className="form-error" role="alert">Не удалось загрузить опрос. Обновите страницу или проверьте подключение к Supabase.</p>}
       <ParentJourney answers={(session?.answers_json as Answers | null) ?? {}} completed={session?.status === "completed"} />
