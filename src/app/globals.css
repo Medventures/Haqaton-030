@@ -227,7 +227,6 @@ input:focus-visible, button:focus-visible { outline: 3px solid #66bd91; outline-
   --ring: #66bd91;
 }
 
-.journey-toolbar { display: flex; justify-content: flex-end; margin-top: .5rem; }
 .pmpk-panel { margin-top: 1.25rem; }
 .pmpk-content { display: grid; gap: .8rem; padding: 1rem 1.25rem 1.25rem; }
 .pmpk-upload, .pmpk-form { display: grid; gap: .8rem; }

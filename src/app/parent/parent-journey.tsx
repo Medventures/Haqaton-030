@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ClipboardList, FileText, RotateCcw, Sparkles } from "lucide-react";
+import { Check, ClipboardList, FileText, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -100,9 +100,8 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
 
   return <>
     <h1 className="sr-only">Ваш маршрут и работа агента</h1>
-    <div className="journey-toolbar">
-      <Button variant="ghost" size="sm" disabled={resetting} onClick={resetAll}><RotateCcw size={14} /> {resetting ? "Сбрасываем…" : "Сбросить всё"}</Button>
-    </div>
+    {/* Submitted by the "Сбросить всё" item in the navbar account menu. */}
+    <form id="parent-reset" hidden onSubmit={(event) => { event.preventDefault(); if (!resetting) void resetAll(); }} />
     <div className="journey-grid">
       <Card className="journey-panel route-panel">
         <CardHeader className="journey-panel-header">
@@ -156,6 +155,6 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
     </div>
     <PmpkPanel key={epoch} onRouteInputsChanged={routeInputsChanged} />
     {!completed && error && <p className="form-error" role="alert">{error}</p>}
-    {completed && <details className="interview-details"><summary><ClipboardList size={18} /> Ответы интервью</summary><AnswersSummary answers={answers} /><p className="field-hint">Чтобы изменить ответы, нажмите «Сбросить всё» и пройдите интервью заново.</p></details>}
+    {completed && <details className="interview-details"><summary><ClipboardList size={18} /> Ответы интервью</summary><AnswersSummary answers={answers} /><p className="field-hint">Чтобы изменить ответы, выберите «Сбросить всё» в меню пользователя и пройдите интервью заново.</p></details>}
   </>;
 }
