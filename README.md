@@ -1,49 +1,24 @@
 # AqylRoute AI
 
-Next.js demo with real Supabase Auth for two roles: parent and curator. Plan: [PLAN.md](PLAN.md). Hosting: Vercel ([ADR](.archcore/nextjs-vercel-mvp.adr.md)).
-
-## Requirements
-
-- Node.js 22 or newer
-- pnpm 10.22 (`corepack enable` picks the version from `package.json`)
-- `psql` to apply migrations
+Next.js 16 demo for a parent. The dashboard shows a vertical route and a visual agent workflow. [Current plan](PLAN.md).
 
 ## Setup
 
-1. Copy `.env.example` to `.env.local` and fill it in. Only `NEXT_PUBLIC_*` values reach the browser. `SUPABASE_SECRET_KEY`, `POSTGRES_URL_NON_POOLING`, `OPENAI_API_KEY` and `CRON_SECRET` are server-only. Never commit `.env.local`.
-2. Apply migrations in order:
+1. Use Node.js 22+ and pnpm 10.22.
+2. Copy `.env.example` to `.env.local`. Add Supabase values. OpenAI variables can be kept for the next stage. Keep server keys private.
+3. Apply SQL files in `supabase/migrations` in order to a new database. For an existing database with `0001` and `0002`, apply `0003_cases_plans_catalog.sql`, then `0004_parent_interview.sql`.
+4. Run `pnpm install`, then `pnpm seed:demo`. Run `pnpm seed:catalog` to load the service catalog used by the new case-plan domain.
+5. Run `pnpm dev` and open `http://localhost:3000/login`.
+6. Check the merged code with `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm build`.
 
-   ```bash
-   set -a; source .env.local; set +a
-   for f in supabase/migrations/*.sql; do psql "$POSTGRES_URL_NON_POOLING" -v ON_ERROR_STOP=1 -f "$f"; done
-   ```
+## Demo account
 
-3. Run `pnpm install`, then `pnpm seed:demo` and `pnpm seed:catalog`. The first creates or updates two confirmed demo users and assigns their roles; the second publishes the service catalog from `src/domain/catalog/v1.ts` (idempotent; a published version is immutable, so a change needs a new `catalog_version`).
-4. Run `pnpm dev` and open `http://localhost:3000/login`.
-5. Checks: `pnpm test` (domain rules, no network), `pnpm typecheck`, `pnpm lint`.
+The login form is prefilled with `parent@aqylroute.demo` / `DemoParent2026!`. Supabase Auth checks the password. Use only synthetic data.
 
-## Configuration
+## Agent demo
 
-| Variable | Required | Without it |
-| --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes | `/login` shows that sign-in is unavailable |
-| `APP_URL` | Yes | Server links and origin checks fail |
-| `SUPABASE_SECRET_KEY` | For seeding and privileged operations | `pnpm seed:demo` stops with an error |
-| `OPENAI_API_KEY`, `OPENAI_MODEL` | For new plan generation | Saved routes work; generation reports it is unavailable |
-| `DEMO_ENABLED`, `DEMO_CURATOR_EMAIL` | For creating cases | Case creation fails with a configuration error |
-| `CRON_SECRET` | For the job recovery endpoint | The endpoint rejects calls |
+The left panel shows the parent's timeline. The right panel shows example agent steps: reviewing context, finding a program, comparing places, and checking times. The parent can choose a time. That choice updates the timeline in the current browser session. Programs, centers, dates, and the confirmation are synthetic. No search, booking, or OpenAI request runs in this demo. `OPENAI_API_KEY` and `OPENAI_MODEL` remain in the server configuration for the next stage.
 
-The server logs missing variables once at start (`[config] ...`).
+## Database change
 
-## Demo accounts
-
-The login form has these synthetic demo credentials prefilled:
-
-| Role | Email | Password |
-| --- | --- | --- |
-| Parent | `parent@aqylroute.demo` | `DemoParent2026!` |
-| Curator | `curator@aqylroute.demo` | `DemoCurator2026!` |
-
-Supabase Auth checks the password. The page reads the role from `profiles` on the server. A user cannot open the other role's page; the page redirects to their own. The form's role choice does not grant access.
-
-These shared credentials are only for a synthetic demo. Do not use these accounts or passwords with real family or medical data.
+`0003_cases_plans_catalog.sql` adds the case-plan tables and a versioned service catalog. `0004_parent_interview.sql` removes the old `plan_status` placeholder from the interview table and updates interview ownership policies. It keeps `profiles.role` because the new case-plan schema uses that field. The current UI still shows only the parent flow.

@@ -2,25 +2,25 @@ import { redirect } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { getCurrentProfile } from "@/lib/supabase/server";
 import { createClient } from "@/lib/supabase/server";
-import Interview from "./interview/interview";
+import ParentJourney from "./parent-journey";
 import type { Answers } from "@/lib/interview";
 
 export default async function ParentPage() {
   const profile = await getCurrentProfile();
   if (!profile) redirect("/login");
-  if (profile.role !== "parent") redirect("/curator");
   const supabase = await createClient();
   const { data: session, error: sessionError } = await supabase.from("interview_sessions")
     .select("answers_json, status").eq("parent_id", profile.id).maybeSingle();
   return (
     <><Navbar profile={profile} /><main className="dashboard-shell">
-      <section className="dashboard-card">
-        <span className="role-tag">Кабинет родителя</span>
-        <h1>Здравствуйте, {profile.fullName || "родитель"}</h1>
-        <p>Ответьте на 10 коротких вопросов. Ваши ответы сохраняются после каждого шага.</p>
+      <section className="dashboard-card dashboard-intro">
+        <div><span className="role-tag">Кабинет родителя</span>
+          <h1>Здравствуйте, {profile.fullName || "родитель"}</h1>
+          <p>Ваш маршрут и работа агента в одном месте. Сейчас показан интерактивный демо-сценарий.</p></div>
+        <div className="intro-count"><strong>04</strong><span>шага в примере маршрута</span></div>
       </section>
-      {sessionError ? <section className="dashboard-card"><p className="form-error" role="alert">Не удалось загрузить опрос. Обновите страницу или проверьте подключение к Supabase.</p></section>
-        : <Interview initialAnswers={(session?.answers_json as Answers | null) ?? {}} initialCompleted={session?.status === "completed"} />}
+      {sessionError && <p className="form-error" role="alert">Не удалось загрузить опрос. Обновите страницу или проверьте подключение к Supabase.</p>}
+      <ParentJourney answers={(session?.answers_json as Answers | null) ?? {}} completed={session?.status === "completed"} />
     </main></>
   );
 }

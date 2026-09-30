@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getSupabaseEnv, isSupabaseConfigured } from "@/lib/supabase/env";
 
-// Only refreshes the Supabase session cookie. Access checks by role live in pages / RLS.
+// Only refreshes the Supabase session cookie. Access checks live in pages / RLS.
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 

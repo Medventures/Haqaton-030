@@ -1,6 +1,6 @@
 ---
 title: "Контракт Canonical CasePlan v1 (AqylRoute)"
-status: draft
+status: rejected
 tags:
   - "aqylroute"
   - "case-plan"

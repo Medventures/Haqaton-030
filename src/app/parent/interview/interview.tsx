@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { demoAnswers, questions, services, validAnswer, type Answers, type QuestionId } from "@/lib/interview";
 import { completeInterview, saveAnswer } from "./actions";
 
@@ -49,6 +50,7 @@ function PlaceFields({ value, onChange, prefix }: { value: unknown; onChange: (v
 }
 
 export default function Interview({ initialAnswers, initialCompleted }: { initialAnswers: Answers; initialCompleted: boolean }) {
+  const router = useRouter();
   const [answers, setAnswers] = useState<Answers>({ ...demoAnswers, ...initialAnswers });
   const [step, setStep] = useState(() => {
     const first = questions.findIndex(({ id }) => !validAnswer(id, initialAnswers[id]));
@@ -79,14 +81,15 @@ export default function Interview({ initialAnswers, initialCompleted }: { initia
         if (result.error) { setError(result.error); return; }
         setCompleted(true);
         setEditing(false);
+        router.refresh();
       } catch { setError("Не удалось сохранить ответ. Попробуйте ещё раз."); }
     });
   }
 
   if (completed && !editing) return <section className="dashboard-card interview-done">
     <span className="role-tag">10 из 10 вопросов</span>
-    <h2>Ваш маршрут готовится к проверке куратором</h2>
-    <p>Ответы сохранены. План появится здесь после проверки и утверждения куратором.</p>
+    <h2>Ответы сохранены</h2>
+    <p>Откройте демонстрационный маршрут выше. При изменении ответов контекст обновится после завершения опроса.</p>
     <button className="secondary-button" type="button" onClick={() => { setStep(0); setEditing(true); }}>Изменить ответы</button>
   </section>;
 

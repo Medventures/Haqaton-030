@@ -1,6 +1,6 @@
 ---
 title: "AqylRoute: демонстрация MVP жюри на двух синтетических кейсах"
-status: draft
+status: rejected
 tags:
   - "aqylroute"
   - "mvp"

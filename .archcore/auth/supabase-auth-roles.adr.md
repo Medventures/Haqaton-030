@@ -1,6 +1,6 @@
 ---
 title: "Supabase Auth с двумя ролями: куратор и родитель"
-status: accepted
+status: rejected
 tags:
   - "aqylroute"
   - "auth"

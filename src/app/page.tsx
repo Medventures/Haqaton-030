@@ -9,8 +9,8 @@ const steps = [
   },
   {
     number: "02",
-    title: "Куратор проверит план",
-    text: "На основе ответов готовится проект маршрута. Куратор проверяет его перед показом семье.",
+    title: "Посмотрите работу агента",
+    text: "Агент показывает найденные варианты, даты и следующий шаг для семьи.",
   },
   {
     number: "03",
@@ -46,7 +46,7 @@ export default function Home() {
           <div className={styles.heroCopy}>
             <span className={styles.kicker}><span className={styles.kickerDot} /> Поддержка семьи на каждом шаге</span>
             <h1 id="hero-title">Понятный маршрут <span>помощи ребёнку</span></h1>
-            <p className={styles.heroDescription}>От первых вопросов до конкретных действий. AqylRoute помогает семье и куратору видеть следующий шаг, нужные документы и сроки в одном месте.</p>
+            <p className={styles.heroDescription}>От первых вопросов до конкретных действий. Слева — маршрут семьи, справа — как агент ищет варианты и готовит предложение.</p>
             <div className={styles.heroActions}>
               <Link href="/login" className={styles.primaryButton}>Войти в демо <ArrowIcon /></Link>
               <a href="#how-it-works" className={styles.secondaryLink}>Как это работает <span aria-hidden="true">↓</span></a>
@@ -72,7 +72,7 @@ export default function Home() {
                 </li>
                 <li className={styles.routeItemCurrent}>
                   <span className={styles.routeNode} aria-hidden="true"><span /></span>
-                  <div><strong>Проверка куратором</strong><small>План станет доступен после проверки</small></div>
+                  <div><strong>Агент ищет варианты</strong><small>Программа, место и удобное время</small></div>
                   <span className={styles.currentBadge}>Текущий шаг</span>
                 </li>
                 <li>
@@ -106,7 +106,7 @@ export default function Home() {
           <div>
             <span className={styles.sectionKicker}>AQYLROUTE AI</span>
             <h2 id="closing-title">Начните с первого шага</h2>
-            <p>Попробуйте интервью родителя или войдите в кабинет куратора.</p>
+            <p>Откройте маршрут и посмотрите, как агент готовит предложение для семьи.</p>
           </div>
           <Link href="/login" className={styles.primaryButton}>Войти в демо <ArrowIcon /></Link>
         </section>

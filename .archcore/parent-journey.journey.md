@@ -1,6 +1,6 @@
 ---
 title: "AqylRoute: путь родителя от интервью до маршрута"
-status: draft
+status: rejected
 tags:
   - "aqylroute"
   - "mvp"

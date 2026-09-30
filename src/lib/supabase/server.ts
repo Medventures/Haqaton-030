@@ -27,8 +27,7 @@ export async function createClient() {
   );
 }
 
-export type Role = "curator" | "parent";
-export type CurrentProfile = { id: string; email: string; role: Role; fullName: string | null };
+export type CurrentProfile = { id: string; email: string; fullName: string | null };
 
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
   // Without Supabase nobody can be signed in; /login explains the configuration error.
@@ -37,12 +36,11 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
   const { data: claimsData } = await supabase.auth.getClaims();
   if (!claimsData?.claims) return null;
   const { data: profile, error } = await supabase.from("profiles")
-    .select("id, role, full_name").eq("id", claimsData.claims.sub).single();
-  if (error || !profile || (profile.role !== "parent" && profile.role !== "curator")) return null;
+    .select("id, full_name").eq("id", claimsData.claims.sub).single();
+  if (error || !profile) return null;
   return {
     id: profile.id,
     email: typeof claimsData.claims.email === "string" ? claimsData.claims.email : "",
-    role: profile.role,
     fullName: profile.full_name,
   };
 }

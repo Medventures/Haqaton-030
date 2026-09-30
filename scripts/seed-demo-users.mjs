@@ -12,8 +12,7 @@ if (!url || !serviceKey) throw new Error("Set NEXT_PUBLIC_SUPABASE_URL and SUPAB
 
 const admin = createClient(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
 const accounts = [
-  { email: "parent@aqylroute.demo", password: "DemoParent2026!", role: "parent", name: "Демо-родитель" },
-  { email: "curator@aqylroute.demo", password: "DemoCurator2026!", role: "curator", name: "Демо-куратор" },
+  { email: "parent@aqylroute.demo", password: "DemoParent2026!", name: "Демо-родитель" },
 ];
 
 for (const account of accounts) {
@@ -35,8 +34,8 @@ for (const account of accounts) {
     user = data.user;
   }
   const { error: profileError } = await admin.from("profiles").upsert({
-    id: user.id, role: account.role, full_name: account.name,
+    id: user.id, full_name: account.name,
   }, { onConflict: "id" });
   if (profileError) throw profileError;
-  console.log(`${account.role}: ${account.email} ready`);
+  console.log(`${account.email} ready`);
 }

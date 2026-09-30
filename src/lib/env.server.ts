@@ -31,15 +31,15 @@ export function getSupabaseSecretKey(): string {
   return requireEnv(["SUPABASE_SECRET_KEY"]).SUPABASE_SECRET_KEY;
 }
 
-// Without OpenAI saved routes keep working; only new generation reports it is unavailable.
+// Reserved for the future agent backend. The current dashboard uses synthetic data.
 export function getOpenAIConfig(): { apiKey: string; model: string } | null {
   const apiKey = read("OPENAI_API_KEY");
   const model = read("OPENAI_MODEL");
   return apiKey && model ? { apiKey, model } : null;
 }
 
-export function getDemoConfig(): { enabled: boolean; curatorEmail: string | null } {
-  return { enabled: read("DEMO_ENABLED") === "true", curatorEmail: read("DEMO_CURATOR_EMAIL") ?? null };
+export function getDemoConfig(): { enabled: boolean } {
+  return { enabled: read("DEMO_ENABLED") === "true" };
 }
 
 export function getCronSecret(): string {
@@ -54,6 +54,6 @@ export function checkConfig(): ConfigReport {
     ? []
     : ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"];
   if (!read("APP_URL")) missingRequired.push("APP_URL");
-  const optional = ["SUPABASE_SECRET_KEY", "OPENAI_API_KEY", "OPENAI_MODEL", "DEMO_CURATOR_EMAIL", "CRON_SECRET"];
+  const optional = ["SUPABASE_SECRET_KEY", "OPENAI_API_KEY", "OPENAI_MODEL", "CRON_SECRET"];
   return { missingRequired, missingOptional: optional.filter((name) => !read(name)) };
 }

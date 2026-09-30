@@ -5,7 +5,7 @@ import { questions, validAnswer, type Answers, type QuestionId } from "@/lib/int
 
 async function parentClient() {
   const profile = await getCurrentProfile();
-  if (!profile || profile.role !== "parent") throw new Error("Доступ к опросу закрыт.");
+  if (!profile) throw new Error("Доступ к опросу закрыт.");
   return { profile, supabase: await createClient() };
 }
 
@@ -22,7 +22,6 @@ export async function saveAnswer(id: QuestionId, value: unknown) {
     parent_id: profile.id,
     answers_json: answers,
     status: "draft",
-    plan_status: null,
     completed_at: null,
     updated_at: new Date().toISOString(),
   }, { onConflict: "parent_id" });
@@ -40,7 +39,6 @@ export async function completeInterview() {
   }
   const { error } = await supabase.from("interview_sessions").update({
     status: "completed",
-    plan_status: "pending_curator",
     completed_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }).eq("parent_id", profile.id);

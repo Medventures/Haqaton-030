@@ -3,11 +3,11 @@ import { signOut } from "@/app/auth/actions";
 import type { CurrentProfile } from "@/lib/supabase/server";
 
 export function Navbar({ profile, children }: { profile: CurrentProfile; children?: React.ReactNode }) {
-  const role = profile.role === "curator" ? "Куратор" : "Родитель";
+  const role = "Родитель";
 
   return <header className="site-navbar">
     <div className="site-navbar-inner">
-      <Link className="site-brand" href={profile.role === "curator" ? "/design/curator" : "/parent"}>AqylRoute <span>AI</span></Link>
+      <Link className="site-brand" href="/parent">AqylRoute <span>AI</span></Link>
       {children && <nav className="site-nav" aria-label="Основная навигация">{children}</nav>}
       <details className="account-menu">
         <summary aria-label="Меню пользователя">

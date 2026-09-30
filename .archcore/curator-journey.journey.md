@@ -1,6 +1,6 @@
 ---
 title: "AqylRoute: путь куратора от проверки плана до разблокировки шагов"
-status: draft
+status: rejected
 tags:
   - "aqylroute"
   - "mvp"
