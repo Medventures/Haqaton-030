@@ -61,6 +61,26 @@ export function matchCenters(centers: Center[], needed: Service[], choice: Route
     .sort((a, b) => b.covered.length - a.covered.length || a.center.distanceKm - b.center.distanceKm);
 }
 
+export type CenterSlot = { centerId: string; startsAt: string };
+
+export function matchKppkOptions(centers: Center[], slots: CenterSlot[], needed: Service[], choice: RouteChoice) {
+  return matchCenters(centers, needed, choice).map((match) => ({
+    ...match,
+    slot: slots.filter((slot) => slot.centerId === match.center.id)
+      .sort((a, b) => a.startsAt.localeCompare(b.startsAt))[0] ?? null,
+  }));
+}
+
+export function createSyntheticKppkBooking(
+  centers: Center[], slots: CenterSlot[], needed: Service[], choice: RouteChoice, proposed: CenterSlot | null,
+) {
+  if (!proposed) return null;
+  const available = matchKppkOptions(centers, slots, needed, choice)
+    .find((option) => option.center.id === proposed.centerId)?.slot;
+  if (!available || available.startsAt !== proposed.startsAt) return null;
+  return { ...proposed, status: "BOOKED" as const };
+}
+
 export type Slot = { id: string; service: Service; specialist: string; startsAt: string };
 export type AppointmentStatus = "BOOKED" | "ATTENDED" | "MISSED" | "CANCELLED";
 export type Appointment = Slot & { status: AppointmentStatus };

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { missedSlotId, program, weekEnd, weekSlots } from "./demo-case";
-import { buildSchedule, findReschedule, matchCenters, progress, withOverdue, weekStats, type Center, type Step } from "./route";
+import { buildSchedule, createSyntheticKppkBooking, findReschedule, matchCenters, matchKppkOptions, progress, withOverdue, weekStats, type Center, type Step } from "./route";
+import { kppkCenters, kppkNeededServices, kppkSlots } from "./demo-case";
 
 describe("progress and overdue", () => {
   it("counts COMPLETED among stages the family did not decline", () => {
@@ -37,6 +38,33 @@ describe("matchCenters", () => {
   it("keeps only centers with a paid curator when the family wants one", () => {
     const result = matchCenters(centers, [...needed], { routeType: "paid", paidCurator: true, ageYears: 6 });
     expect(result.map((m) => m.center.id)).toEqual(["a"]);
+  });
+});
+
+describe("matchKppkOptions", () => {
+  const choice = { routeType: "public" as const, paidCurator: false, ageYears: 6 };
+
+  it("recommends КППК №1 and keeps КППК №4 available", () => {
+    const options = matchKppkOptions(kppkCenters, kppkSlots, kppkNeededServices, choice);
+    expect(options.map((option) => [option.center.id, option.covered.length, option.slot?.startsAt])).toEqual([
+      ["kppk-1", 2, "2026-10-05T11:00"],
+      ["kppk-4", 2, "2026-10-07T15:30"],
+    ]);
+  });
+
+  it("returns no options if no organization matches and no slot if none is listed", () => {
+    expect(matchKppkOptions([], kppkSlots, kppkNeededServices, choice)).toEqual([]);
+    const options = matchKppkOptions(kppkCenters, [], kppkNeededServices, choice);
+    expect(options.every((option) => option.slot === null)).toBe(true);
+  });
+
+  it("books only the exact proposed time after it is checked again", () => {
+    const proposed = kppkSlots[0];
+    expect(createSyntheticKppkBooking(kppkCenters, kppkSlots, kppkNeededServices, choice, proposed))
+      .toEqual({ ...proposed, status: "BOOKED" });
+    expect(createSyntheticKppkBooking(kppkCenters, [], kppkNeededServices, choice, proposed)).toBeNull();
+    expect(createSyntheticKppkBooking(kppkCenters,
+      [{ ...proposed, startsAt: "2026-10-05T12:00" }], kppkNeededServices, choice, proposed)).toBeNull();
   });
 });
 

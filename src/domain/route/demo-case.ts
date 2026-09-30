@@ -1,4 +1,4 @@
-import type { Center, ProgramItem, Slot, Step } from "./route";
+import type { Center, ProgramItem, Service, Slot, Step } from "./route";
 
 // Synthetic case C (@.archcore/alikhan-synthetic-case.scenario.md). All names and addresses are invented.
 
@@ -34,6 +34,8 @@ export const kppkSlots = [
   { centerId: "kppk-1", startsAt: "2026-10-05T11:00" },
   { centerId: "kppk-4", startsAt: "2026-10-07T15:30" },
 ];
+
+export const kppkNeededServices: Service[] = ["defectolog", "logoped"];
 
 export const program = {
   author: "Специалист КППК №1",

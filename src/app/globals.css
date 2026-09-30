@@ -153,14 +153,27 @@ input:focus-visible, button:focus-visible { outline: 3px solid #66bd91; outline-
 .next-step h3 { margin: .3rem 0 .2rem; font-size: 1.05rem; }
 .next-step p { margin: 0 0 .55rem; font-size: .84rem; }
 .next-step-ai { display: flex; gap: .35rem; align-items: center; margin: .6rem 0 0 !important; color: #205273; }
-.route-stages .timeline-body { cursor: default; }
-.route-stages .timeline-body:hover { background: none; }
+.route-stages .timeline-body.is-static { cursor: default; }
+.route-stages .timeline-body.is-static:hover { background: none; }
+.route-stages button.timeline-body { cursor: pointer; }
+.stage-view-label { display: inline-flex; gap: .25rem; align-items: center; margin: .45rem 0 0 .5rem; color: #176346; font-size: .76rem; font-weight: 700; }
+.timeline-body.is-active .stage-view-label svg { transform: rotate(180deg); }
+.stage-details { grid-column: 2; min-width: 0; margin: -.25rem 0 .75rem -.5rem; padding: .75rem; border: 1px solid #d9e4dc; border-radius: 12px; background: #fff; font-size: .82rem; }
+.stage-details p:last-child { margin-bottom: 0; }
+.stage-details .readonly-note { margin: 0 0 .7rem; }
+.stage-facts { display: grid; gap: .6rem; margin: 0; }
+.stage-facts dt { color: #62766a; font-size: .74rem; font-weight: 700; }
+.stage-facts dd { margin: .1rem 0 0; overflow-wrap: anywhere; }
 .route-stages .timeline-step { padding-bottom: .9rem; }
 .is-overdue .step-state { background: #fbe9e7; color: #a12a27; }
 .node-dot { width: 10px; height: 10px; border-radius: 50%; background: #176346; }
 .agent-activity .is-pending strong { color: #205273; }
 .agent-activity .is-pending .activity-icon { background: #e7f2f9; color: #205273; }
+.agent-activity .is-error strong, .agent-activity .is-error p { color: #a12a27; }
+.agent-activity .is-error .activity-icon { background: #fbe9e7; color: #a12a27; }
 .agent-activity li:has(> :nth-child(2):last-child) { grid-template-columns: 34px minmax(0, 1fr); align-items: center; padding: .4rem 0; }
+.selected-slot { margin: .85rem 0 0 !important; padding: .75rem .8rem; border: 1px solid #b9d6c3; border-radius: 10px; background: #fff; line-height: 1.5; }
+.slot-option:focus-visible { outline: 3px solid #66bd91; outline-offset: 2px; }
 .upload-drop { display: flex; justify-content: center; align-items: center; gap: .55rem; padding: 1.4rem; border: 1.5px dashed #9bb6a3; border-radius: 12px; background: white; color: #176346; font-weight: 800; cursor: pointer; }
 .upload-drop:hover { background: #f1f8f3; }
 .upload-drop:focus-within { outline: 3px solid #66bd91; outline-offset: 2px; }
