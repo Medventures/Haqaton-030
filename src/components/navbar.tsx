@@ -2,7 +2,7 @@ import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
 import type { CurrentProfile } from "@/lib/supabase/server";
 
-export function Navbar({ profile, children, menu }: { profile: CurrentProfile; children?: React.ReactNode; menu?: React.ReactNode }) {
+export function Navbar({ profile, children }: { profile: CurrentProfile; children?: React.ReactNode }) {
   const role = "Родитель";
 
   return <header className="site-navbar">
@@ -17,7 +17,6 @@ export function Navbar({ profile, children, menu }: { profile: CurrentProfile; c
         </summary>
         <div className="account-dropdown">
           <div className="account-details"><strong>{profile.email}</strong><span>{role}</span></div>
-          {menu}
           <form action={signOut}><button type="submit">Выйти</button></form>
         </div>
       </details>

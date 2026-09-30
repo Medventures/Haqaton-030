@@ -10,8 +10,7 @@
     "seed:demo": "node scripts/seed-demo-users.mjs",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "seed:catalog": "tsx scripts/seed-catalog.mts",
-    "test:route-db": "bash scripts/test-parent-route-db.sh"
+    "seed:catalog": "tsx scripts/seed-catalog.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
