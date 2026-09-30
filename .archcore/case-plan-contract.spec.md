@@ -12,12 +12,13 @@ tags:
 
 ## Surface
 - Корень `plan_json`: `schema_version`, `catalog_version`, `case_id`, `jurisdiction`, `created_at`, `plan_status`, `profile`, `approval`, `steps[]`. Поля `diagnosis` нет.
-- `profile`: `child_age_months`, `region_code`, `education_stage`, `support_goals` (обезличенные значения).
+- `profile`: `child_age_years`, `age_band` (`0-2`, `3-6`, `7-13`, `14-17`), `region_code` (ISO 3166-2:KZ либо `KZ-OTHER`), `education_stage` (`none`, `kindergarten`, `school`), `support_goals` (значения вопроса `MAIN_PRIORITY`). Только обезличенные значения; вопрос банка задаёт возраст в полных годах.
 - `approval`: `required`, `status`, `curator_id`, `approved_at`.
-- Шаг: `step_id`, `action_id`, `title`, `agency`, `priority`, `responsible`, `explanation`, `explanation_source`, `depends_on`, `documents[]`, `deadline`, `status`, `status_updated_at`, `overdue`, `escalation`.
+- Шаг: `step_id`, `action_id`, `title`, `agency`, `priority` (`high`, `medium`, `low`), `responsible` (`role`: `parent`, `curator`, `agency`; `label`), `explanation`, `explanation_source`, `depends_on`, `requires_facts`, `documents[]` (`document_id`, `title`, `required`), `deadline`, `status`, `status_updated_at`, `submitted_at`, `completed_at`, `overdue`, `escalation`.
 - `explanation_source`: `ai` (текст модели прошёл проверку) или `catalog_template` (заранее проверенный шаблон из справочника).
-- `deadline`: `kind` (`statutory`, `service_duration`, `internal_target`), `trigger`, `trigger_at`, `due_at`, `source`.
-- `overdue`: `is_overdue`, `days`. `escalation`: `state` (значение `curator_attention_required`).
+- `deadline`: `kind` (`statutory`, `service_duration`, `internal_target`), `trigger` (`plan_approved`, `self_submitted`, `pmpk_application_submitted`, `pmpk_conclusion_confirmed`, `prerequisite_completed`), `trigger_at`, `due_at`, `duration` (`amount`, `unit`: `working_days` или `calendar_days`; для `service_duration` — `min_days`, `max_days`), `source` (`title`, `url`, `clause`). `trigger_at` и `due_at` равны `null`, пока триггер не наступил.
+- `overdue`: `is_overdue`, `days`. `escalation`: `state` (`none`, `curator_attention_required`). Оба поля — снимок последнего расчёта; API пересчитывает их при каждом чтении.
+- Подтверждённые куратором факты кейса: `cases.confirmed_facts_json` — `pmpk_conclusion_confirmed`, `mse_referral_confirmed`, `home_schooling_vkk_confirmed`, `social_services_eligibility_confirmed`. Это единственный источник eligibility-флагов; свободный текст родителя и текст модели их не устанавливают. `requires_facts` шага перечисляет нужные факты.
 - Статусы шага: `draft`, `ready`, `submitted`, `scheduled`, `in_progress`, `waiting_external`, `blocked`, `completed`, `cancelled`. Терминальные: `completed`, `cancelled`.
 - Статусы плана: `pending_curator`, `approved`, `returned_for_revision`, `closed`. `closed` остаётся в контракте, но пользовательской операции закрытия в первом релизе нет.
 - Состояние кейса `cases.workflow_state`: `interview_in_progress`, `generating`, `generation_failed`, `pending_curator`, `returned_for_revision`, `approved`. Это краткое безопасное состояние для кабинетов; оно не заменяет `plan_status`.
@@ -60,13 +61,33 @@ tags:
 32. WHILE у кейса нет назначенного куратора, the сервер MUST NOT создавать задание генерации для этого кейса.
 33. WHILE шаг в терминальном статусе, the сервер MUST NOT переводить его в другой статус через пользовательские операции; исправление ошибки идёт отдельной административной процедурой с записью в историю.
 
+## Step Transitions
+Решено 30.09.2026 (DATA-01). Это whitelist; остальные переходы запрещены. Код: `src/domain/case-plan/transitions.ts`.
+
+| Из | Действие | В | Кто |
+|---|---|---|---|
+| — | генерация или ручная сборка | `draft` либо `blocked` | сервер: `blocked`, если не выполнена зависимость или нет факта из `requires_facts` |
+| `draft` | утверждение плана | `ready` | сервер по действию куратора |
+| `blocked` | зависимости завершены и факты подтверждены | `ready` | сервер после действия куратора |
+| `ready` | подача с датой | `submitted` | родитель для шага с `responsible.role = parent`; куратор |
+| `submitted` | ожидание внешнего ответа | `waiting_external` | куратор |
+| `submitted`, `waiting_external` | подтверждённая дата | `scheduled` | куратор |
+| `ready`, `scheduled` | начало исполнения | `in_progress` | куратор |
+| `ready`, `submitted`, `scheduled`, `in_progress`, `waiting_external` | результат подтверждён | `completed` | куратор; родитель — только для действия с `parent_can_complete` в справочнике |
+| любой нетерминальный | отмена с причиной | `cancelled` | куратор |
+
+34. The сервер MUST присваивать шагу при генерации только `draft` или `blocked`; `ready` появляется только при утверждении либо разблокировке.
+35. WHEN сервер фиксирует `submitted`, the сервер MUST записать `submitted_at`; для триггера `self_submitted` это `trigger_at`.
+36. WHEN куратор подтверждает факт, the сервер MUST одной транзакцией записать факт в `cases.confirmed_facts_json`, событие в `case_events` и перевести в `ready` каждый `blocked` шаг, у которого выполнены все зависимости и факты.
+37. The родитель MUST NOT подтверждать факты и MUST NOT отменять шаги.
+
 ## Constraints & Invariants
 - Invariant: `approved` MUST NOT быть статусом шага; статус плана и статус шага не смешиваются.
 - Invariant: состояние задания генерации (`queued`, `running`, `succeeded`, `failed`), `workflow_state` кейса и `plan_status` — разные поля; ни одно не выводится из другого без явной операции.
 - Invariant: жалобу в государственный орган система MUST NOT отправлять автоматически; эскалация идёт только внутри интерфейса.
 - Invariant: куратор MUST NOT создавать услугу текстом; допустим только `action_id` из справочника.
 - Constraint: модель MUST NOT назначать официальный срок, документы, ответственного и диагноз; эти поля дают справочник и сервер.
-- Не сверено с первичными источниками (взято из материала @rnd.md): срок назначения даты ПМПК (2 рабочих дня), ожидание обследования (до 30 календарных дней), срок услуги поддержки (90-365 дней).
+- Сверено 30.09.2026 с приказом МОН РК от 27.05.2020 № 223 (https://adilet.zan.kz/rus/docs/V2000020744), п. 4 стандартов услуг: при обращении через портал дата обследования ПМПК назначается в течение 2 рабочих дней (при личном обращении — в день обращения); очередь на обследование — до 30 календарных дней; реабилитация и социальная адаптация — от 90 до 365 календарных дней; приём документов на обучение на дому — 2 рабочих дня. Отсчёт 30 дней очереди от подачи заявления — толкование AqylRoute. Сроки МСЭ и социальных услуг не сверены: в справочнике они только `internal_target`.
 - Не сверено: правило расчёта рабочих дней (календарь праздников и переносов РК).
 - Решено 30.09.2026 (PLAN.md): терминальны `completed` и `cancelled` (клауза 33). Действие без основания исключается из допустимого списка, действие с выполнимым prerequisite попадает в план как `blocked` (клаузы 8-9); это снимает противоречие материала между таблицей кейса A и чек-листом.
 - Решено 30.09.2026: куратор назначается сервером при создании кейса (клауза 31). Правило распределения между несколькими кураторами — вне первого релиза.
@@ -78,4 +99,4 @@ tags:
 4. IF серверная конфигурация не задаёт демо-куратора, THEN the сервер MUST отказать в создании кейса с явной ошибкой конфигурации и MUST NOT создавать кейс без куратора.
 
 ## Conformance
-Реализация соответствует спеке, когда выполняет клаузы 1-33, держит инварианты и следует правилам отказа. Пример: Given срок шага наступил 23.09; When наступает 30.09 и шаг `waiting_external`; Then `is_overdue` равен true, `days` равен 7 без вызова модели.
+Реализация соответствует спеке, когда выполняет клаузы 1-37, держит инварианты и следует правилам отказа. Пример: Given срок шага наступил 23.09; When наступает 30.09 и шаг `waiting_external`; Then `is_overdue` равен true, `days` равен 7 без вызова модели.
