@@ -233,7 +233,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
       </Card> : <Card className="journey-panel agent-panel">
         <CardHeader className="journey-panel-header">
           <div className="panel-heading"><span className="panel-icon agent-icon"><Sparkles size={20} /></span>
-            <CardTitle>ИИ-куратор</CardTitle>
+            <CardTitle>AI-куратор</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="agent-content">
