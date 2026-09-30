@@ -13,7 +13,8 @@ tags:
 ## Surface
 - Корень `plan_json`: `schema_version`, `catalog_version`, `case_id`, `jurisdiction`, `created_at`, `plan_status`, `profile`, `approval`, `steps[]`. Поля `diagnosis` нет.
 - `profile`: `child_age_years`, `age_band` (`0-2`, `3-6`, `7-13`, `14-17`), `region_code` (ISO 3166-2:KZ либо `KZ-OTHER`), `education_stage` (`none`, `kindergarten`, `school`), `support_goals` (значения вопроса `MAIN_PRIORITY`). Только обезличенные значения; вопрос банка задаёт возраст в полных годах.
-- `approval`: `required`, `status`, `curator_id`, `approved_at`.
+- `approval`: `required`, `status` (`pending`, `approved`), `curator_id`, `approved_at`, `plan_revision` (ревизия `case_plans.revision`, которую утвердил куратор).
+- Код контракта: схема `src/domain/case-plan/schema.ts`, валидатор инвариантов `src/domain/case-plan/validate.ts`, справочник `src/domain/catalog/v1.ts`, fixtures A/B `src/domain/fixtures/cases.ts`.
 - Шаг: `step_id`, `action_id`, `title`, `agency`, `priority` (`high`, `medium`, `low`), `responsible` (`role`: `parent`, `curator`, `agency`; `label`), `explanation`, `explanation_source`, `depends_on`, `requires_facts`, `documents[]` (`document_id`, `title`, `required`), `deadline`, `status`, `status_updated_at`, `submitted_at`, `completed_at`, `overdue`, `escalation`.
 - `explanation_source`: `ai` (текст модели прошёл проверку) или `catalog_template` (заранее проверенный шаблон из справочника).
 - `deadline`: `kind` (`statutory`, `service_duration`, `internal_target`), `trigger` (`plan_approved`, `self_submitted`, `pmpk_application_submitted`, `pmpk_conclusion_confirmed`, `prerequisite_completed`), `trigger_at`, `due_at`, `duration` (`amount`, `unit`: `working_days` или `calendar_days`; для `service_duration` — `min_days`, `max_days`), `source` (`title`, `url`, `clause`). `trigger_at` и `due_at` равны `null`, пока триггер не наступил.
