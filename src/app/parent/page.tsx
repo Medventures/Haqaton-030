@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { signOut } from "@/app/auth/actions";
+import { Navbar } from "@/components/navbar";
 import { getCurrentProfile } from "@/lib/supabase/server";
 import { createClient } from "@/lib/supabase/server";
 import Interview from "./interview/interview";
@@ -13,8 +13,7 @@ export default async function ParentPage() {
   const { data: session, error: sessionError } = await supabase.from("interview_sessions")
     .select("answers_json, status").eq("parent_id", profile.id).maybeSingle();
   return (
-    <main className="dashboard-shell">
-      <header className="dashboard-header"><span className="eyebrow">AqylRoute AI</span><form action={signOut}><button className="text-button">Выйти</button></form></header>
+    <><Navbar profile={profile} /><main className="dashboard-shell">
       <section className="dashboard-card">
         <span className="role-tag">Кабинет родителя</span>
         <h1>Здравствуйте, {profile.fullName || "родитель"}</h1>
@@ -22,6 +21,6 @@ export default async function ParentPage() {
       </section>
       {sessionError ? <section className="dashboard-card"><p className="form-error" role="alert">Не удалось загрузить опрос. Обновите страницу или проверьте подключение к Supabase.</p></section>
         : <Interview initialAnswers={(session?.answers_json as Answers | null) ?? {}} initialCompleted={session?.status === "completed"} />}
-    </main>
+    </main></>
   );
 }

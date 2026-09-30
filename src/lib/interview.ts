@@ -23,6 +23,19 @@ export const questions = [
 export type QuestionId = (typeof questions)[number]["id"];
 export type Answers = Partial<Record<QuestionId, unknown>>;
 
+export const demoAnswers: Answers = {
+  AGE: 2,
+  RESIDENCE: { city: "Алматы", district: "Бостандыкский район" },
+  REGISTRATION: { same: true },
+  COMPLETED_STAGES: ["none"],
+  PMPK_STATUS: "no",
+  DISABILITY_STATUS: "no",
+  HELP_PREFERENCE: "state",
+  CURRENT_HELP: "none",
+  CURRENT_SERVICES: "none",
+  MAIN_PRIORITY: "start",
+};
+
 const completedStages = ["specialists", "pmpk", "disability", "rehabilitation", "none"];
 const pmpkStatuses = ["yes", "no", "in_progress", "unknown"];
 const disabilityStatuses = ["yes", "no", "in_progress", "not_planned"];

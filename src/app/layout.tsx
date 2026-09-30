@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AqylRoute AI",
-  description: "Демо маршрута для родителя и куратора",
+  description: "Понятный маршрут помощи ребёнку: от короткого интервью до плана шагов, который проверяет куратор.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -1,5 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { redirect } from "next/navigation";
+import { getCurrentProfile } from "@/lib/supabase/server";
+import { Navbar } from "./navbar";
 import "./admin.css";
 
 type IconName = "grid" | "folder" | "spark" | "clock" | "alert" | "calendar" | "info" | "arrow" | "chevron" | "check" | "file" | "search" | "bell" | "help" | "back";
@@ -25,19 +28,18 @@ export function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
   return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>;
 }
 
-export function AdminShell({ active, children }: { active: "dashboard" | "plan" | "overdue"; children: ReactNode }) {
-  const nav: { label: string; href: string; icon: IconName; key: typeof active }[] = [
-    { label: "Обзор", href: "/design/curator", icon: "grid", key: "dashboard" },
-    { label: "Проверка планов", href: "/design/curator/plan-review", icon: "file", key: "plan" },
-    { label: "Просрочки", href: "/design/curator/overdue", icon: "alert", key: "overdue" },
+export async function AdminShell({ active, children }: { active: "dashboard" | "plan" | "overdue"; children: ReactNode }) {
+  const profile = await getCurrentProfile();
+  if (!profile) redirect("/login");
+  if (profile.role !== "curator") redirect("/parent");
+  const nav: { label: string; href: string; key: typeof active }[] = [
+    { label: "Обзор", href: "/design/curator", key: "dashboard" },
+    { label: "Проверка планов", href: "/design/curator/plan-review", key: "plan" },
+    { label: "Просрочки", href: "/design/curator/overdue", key: "overdue" },
   ];
-  return <div className="app-shell"><aside className="sidebar">
-    <Link href="/design/curator" className="brand"><span className="brand-mark"><span /></span><span className="brand-copy"><strong>AqylRoute</strong><small>Кабинет куратора</small></span></Link>
-    <div className="workspace-switch"><span className="workspace-icon">A</span><span><strong>AqylRoute AI</strong><small>Рабочее пространство</small></span><Icon name="chevron" size={14} /></div>
-    <p className="nav-caption">РАБОЧАЯ ОБЛАСТЬ</p>
-    <nav aria-label="Основная навигация" className="nav-list">{nav.map((item) => <Link key={item.key} href={item.href} className={`nav-link ${active === item.key ? "nav-link--active" : ""}`} aria-current={active === item.key ? "page" : undefined}><Icon name={item.icon} /><span>{item.label}</span>{item.key === "overdue" && <em>2</em>}</Link>)}</nav>
-    <div className="sidebar-bottom"><div className="sidebar-hint"><span className="hint-icon"><Icon name="help" /></span><strong>Нужна помощь?</strong><p>Подсказки по работе с маршрутами появятся здесь.</p></div><div className="profile"><span className="profile-avatar">К</span><span><strong>Куратор</strong><small>Демо-режим</small></span><Icon name="chevron" size={16} /></div></div>
-  </aside><div className="main-wrap"><header className="topbar"><div className="breadcrumbs">Рабочее пространство <Icon name="chevron" size={14} /> <strong>{active === "dashboard" ? "Обзор" : active === "plan" ? "Проверка планов" : "Просрочки"}</strong></div><div className="top-actions"><span className="top-search"><Icon name="search" /> Поиск по кейсам <kbd>⌘ K</kbd></span><span className="top-icon"><Icon name="bell" /><i /></span><span className="top-avatar">К</span></div></header><main className="page-content">{children}</main></div></div>;
+  return <div className="app-shell"><Navbar profile={profile}>
+    {nav.map((item) => <Link key={item.key} href={item.href} className={`site-nav-link ${active === item.key ? "site-nav-link--active" : ""}`} aria-current={active === item.key ? "page" : undefined}>{item.label}</Link>)}
+  </Navbar><main className="page-content">{children}</main></div>;
 }
 
 export function PageHeader({ eyebrow, title, description, action }: { eyebrow?: string; title: string; description: string; action?: ReactNode }) {

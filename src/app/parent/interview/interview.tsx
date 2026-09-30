@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { questions, services, validAnswer, type Answers, type QuestionId } from "@/lib/interview";
+import { demoAnswers, questions, services, validAnswer, type Answers, type QuestionId } from "@/lib/interview";
 import { completeInterview, saveAnswer } from "./actions";
 
 const choices: Partial<Record<QuestionId, { value: string; label: string }[]>> = {
@@ -49,7 +49,7 @@ function PlaceFields({ value, onChange, prefix }: { value: unknown; onChange: (v
 }
 
 export default function Interview({ initialAnswers, initialCompleted }: { initialAnswers: Answers; initialCompleted: boolean }) {
-  const [answers, setAnswers] = useState<Answers>(initialAnswers);
+  const [answers, setAnswers] = useState<Answers>({ ...demoAnswers, ...initialAnswers });
   const [step, setStep] = useState(() => {
     const first = questions.findIndex(({ id }) => !validAnswer(id, initialAnswers[id]));
     return first < 0 ? questions.length - 1 : first;
@@ -118,6 +118,7 @@ export default function Interview({ initialAnswers, initialCompleted }: { initia
   }
 
   return <section className="dashboard-card interview-card" aria-labelledby="question-title">
+    <p className="demo-prefill-note">Демо: ответы уже выбраны. При необходимости измените их перед сохранением.</p>
     <div className="interview-progress"><span>Вопрос {step + 1} из {questions.length}</span><span>{Math.round((step / questions.length) * 100)}%</span></div>
     <progress value={step} max={questions.length} aria-label="Прогресс опроса" />
     <h2 id="question-title">{question.title}</h2>
