@@ -1,11 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+import { getSupabaseEnv, isSupabaseConfigured } from "./env";
+
+// New client per request: the cache headers from setAll come only once per client.
 export async function createClient() {
   const cookieStore = await cookies();
+
+  const { url, publishableKey } = getSupabaseEnv();
+
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    url,
+    publishableKey,
     {
       cookies: {
         getAll() { return cookieStore.getAll(); },
@@ -25,6 +31,8 @@ export type Role = "curator" | "parent";
 export type CurrentProfile = { id: string; email: string; role: Role; fullName: string | null };
 
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
+  // Without Supabase nobody can be signed in; /login explains the configuration error.
+  if (!isSupabaseConfigured()) return null;
   const supabase = await createClient();
   const { data: claimsData } = await supabase.auth.getClaims();
   if (!claimsData?.claims) return null;

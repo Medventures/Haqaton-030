@@ -7,8 +7,8 @@ const env = Object.fromEntries(lines.filter((line) => /^[A-Z][A-Z0-9_]*=/.test(l
   return [line.slice(0, index), line.slice(index + 1).replace(/^['"]|['"]$/g, "")];
 }));
 const url = env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
-if (!url || !serviceKey) throw new Error("Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local");
+const serviceKey = env.SUPABASE_SECRET_KEY;
+if (!url || !serviceKey) throw new Error("Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in .env.local");
 
 const admin = createClient(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
 const accounts = [

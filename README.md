@@ -1,13 +1,40 @@
 # AqylRoute AI
 
-Next.js demo with real Supabase Auth for two roles: parent and curator.
+Next.js demo with real Supabase Auth for two roles: parent and curator. Plan: [PLAN.md](PLAN.md). Hosting: Vercel ([ADR](.archcore/nextjs-vercel-mvp.adr.md)).
+
+## Requirements
+
+- Node.js 22 or newer
+- pnpm 10.22 (`corepack enable` picks the version from `package.json`)
+- `psql` to apply migrations
 
 ## Setup
 
-1. Copy `.env.example` to `.env.local` and set the URL and publishable key from your Supabase project. For creating demo users, also set `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. Never expose this key to the browser or commit the file.
-2. Apply `supabase/migrations/0001_profiles_roles.sql` in the Supabase SQL Editor. This creates `profiles`, the two roles, a sign-up trigger, and a policy that lets users read only their own profile.
+1. Copy `.env.example` to `.env.local` and fill it in. Only `NEXT_PUBLIC_*` values reach the browser. `SUPABASE_SECRET_KEY`, `POSTGRES_URL_NON_POOLING`, `OPENAI_API_KEY` and `CRON_SECRET` are server-only. Never commit `.env.local`.
+2. Apply migrations in order:
+
+   ```bash
+   set -a; source .env.local; set +a
+   for f in supabase/migrations/*.sql; do psql "$POSTGRES_URL_NON_POOLING" -v ON_ERROR_STOP=1 -f "$f"; done
+   ```
+
 3. Run `pnpm install`, then `pnpm seed:demo`. The seed command creates or updates two confirmed demo users and assigns their roles.
 4. Run `pnpm dev` and open `http://localhost:3000/login`.
+
+## Configuration
+
+| Variable | Required | Without it |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes | `/login` shows that sign-in is unavailable |
+| `APP_URL` | Yes | Server links and origin checks fail |
+| `SUPABASE_SECRET_KEY` | For seeding and privileged operations | `pnpm seed:demo` stops with an error |
+| `OPENAI_API_KEY`, `OPENAI_MODEL` | For new plan generation | Saved routes work; generation reports it is unavailable |
+| `DEMO_ENABLED`, `DEMO_CURATOR_EMAIL` | For creating cases | Case creation fails with a configuration error |
+| `CRON_SECRET` | For the job recovery endpoint | The endpoint rejects calls |
+
+The server logs missing variables once at start (`[config] ...`).
+
+## Demo accounts
 
 The login form has these synthetic demo credentials prefilled:
 

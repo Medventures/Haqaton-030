@@ -1,13 +1,19 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { getSupabaseEnv, isSupabaseConfigured } from "@/lib/supabase/env";
+
 // Only refreshes the Supabase session cookie. Access checks by role live in pages / RLS.
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  // Without Supabase config there is no session to refresh; public pages must still render.
+  if (!isSupabaseConfigured()) return response;
+  const { url, publishableKey } = getSupabaseEnv();
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    url,
+    publishableKey,
     {
       cookies: {
         getAll() {
