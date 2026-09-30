@@ -4,7 +4,7 @@ import type { FactId } from "./conditions";
 export const PMPK_BUCKET = "pmpk-documents";
 export const PMPK_MAX_BYTES = 10 * 1024 * 1024;
 // Bump when the consent text shown before sending a file to OpenAI changes.
-export const PMPK_CONSENT_VERSION = "pmpk-openai-2026-09";
+export const PMPK_CONSENT_VERSION = "pmpk-ai-2026-09-30";
 export const PMPK_SCHEMA_VERSION = "pmpk-extraction-1";
 
 export const PMPK_MIME_TYPES = ["application/pdf", "image/png", "image/jpeg"] as const;

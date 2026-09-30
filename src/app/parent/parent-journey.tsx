@@ -141,7 +141,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
         <CardContent className="agent-content">
           <ol className="agent-activity" aria-label="Этапы подготовки">
             <li><ClipboardList size={18} /><div><strong>Ответы сохранены</strong><p>Интервью хранится в вашем аккаунте.</p></div><Check size={17} /></li>
-            <li><Sparkles size={18} /><div><strong>{generating ? "OpenAI подбирает действия…" : plan ? "Действия подобраны" : "Подобрать действия"}</strong><p>Модель выбирает из допустимого списка.</p></div></li>
+            <li><Sparkles size={18} /><div><strong>{generating ? "ИИ-куратор подбирает действия…" : plan ? "Действия подобраны" : "Подобрать действия"}</strong><p>ИИ-куратор выбирает из допустимого списка.</p></div></li>
             <li><FileText size={18} /><div><strong>{plan ? "Маршрут проверен и сохранён" : "Проверить и сохранить"}</strong><p>Сервер проверяет ответ перед сохранением.</p></div></li>
           </ol>
           {plan && <div className="context-strip"><span>Сохранённый маршрут</span><Badge variant="secondary">{plan.steps.length} шагов</Badge><p>Создан {new Intl.DateTimeFormat("ru-RU", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Almaty" }).format(new Date(plan.generated_at))}</p></div>}

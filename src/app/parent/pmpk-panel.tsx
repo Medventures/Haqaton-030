@@ -174,7 +174,7 @@ export default function PmpkPanel({ onRouteInputsChanged }: { onRouteInputsChang
         {file && !preview && <p className="field-hint">PDF: {file.name}, {(file.size / 1024 / 1024).toFixed(1)} МБ.</p>}
         <label className="pmpk-consent">
           <input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />
-          <span>Я согласен(на), чтобы файл хранился в закрытом хранилище моего аккаунта и был отправлен в OpenAI для распознавания. Я могу удалить его в любой момент.</span>
+          <span>Я согласен(на), чтобы файл хранился в закрытом хранилище моего аккаунта и был отправлен внешнему ИИ-сервису для распознавания. Я могу удалить его в любой момент.</span>
         </label>
         <Button className="confirm-slot" disabled={!file || !consent || busy !== null} onClick={submit}>
           {busy ? "Загружаем и разбираем…" : "Разобрать документ"}

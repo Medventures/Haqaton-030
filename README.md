@@ -5,11 +5,28 @@ Next.js 16 demo for a parent. The dashboard generates a preliminary route using 
 ## Setup
 
 1. Use Node.js 22+ and pnpm 10.22.
-2. Copy `.env.example` to `.env.local`. Add Supabase values. Set OPENAI_API_KEY, OPENAI_MODEL, APP_URL and the server-only SUPABASE_SECRET_KEY. Keep server keys private.
+2. Copy `.env.example` to `.env.local` and fill in the variables below. Keep server keys private.
 3. Apply SQL files in `supabase/migrations` in order to a new database. For an existing database with `0001` and `0002`, apply `0003_cases_plans_catalog.sql`, then `0004_parent_interview.sql` and `202609300001_parent_ai_routes.sql`.
 4. Run `pnpm install`, then `pnpm seed:demo`. Run `pnpm seed:catalog` to load the service catalog used by the new case-plan domain.
 5. Run `pnpm dev` and open `http://localhost:3000/`.
 6. Check the merged code with `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm test:route-db` (local PostgreSQL 16), and `pnpm build`.
+
+## Environment variables
+
+Dev reads `.env.local`. Prod reads Vercel Project Settings → Environment Variables (`vercel env add <NAME> production`); redeploy after a change.
+
+| Variable | Dev | Prod | Used for |
+|---|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | required | required | Supabase client; inlined at build time |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | required | required | Supabase client; inlined at build time |
+| `SUPABASE_SECRET_KEY` | required | required | route generation, PMPK, `seed:*` scripts |
+| `APP_URL` | `http://localhost:3000` | `https://medhub-hackaton.vercel.app` | origin check on `POST /api/agent/route`; must match the address in the browser |
+| `OPENAI_API_KEY` | required | required | route generation, PMPK recognition |
+| `OPENAI_MODEL` | required | required | same |
+| `POSTGRES_URL_NON_POOLING` | optional | — | applying migrations with `psql` by hand |
+| `CRON_SECRET`, `DEMO_ENABLED` | — | — | not read by the code yet |
+
+Without `APP_URL`, `OPENAI_API_KEY` or `OPENAI_MODEL`, «Создать маршрут» fails with «Генерация ещё не настроена на сервере».
 
 ## Demo account
 
