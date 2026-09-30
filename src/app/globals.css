@@ -63,6 +63,7 @@ input:focus-visible, button:focus-visible { outline: 3px solid #66bd91; outline-
 .timeline-text { display: block; margin: 0 0 .65rem; font-size: .85rem; }
 .step-state { display: inline-flex; border-radius: 100px; padding: .3rem .6rem; background: #e7f3e9; color: #176346; font-size: .72rem; font-weight: 800; }
 .is-upcoming .step-state { background: #f1f4f1; color: #6c7e72; }
+.is-reported .step-state { background: #e7f2f9; color: #205273; }
 .is-current .step-state { background: #e7f2f9; color: #205273; }
 .step-state.is-personal { gap: .3rem; align-items: center; margin-left: .4rem; background: #f3eefb; color: #5b3f8c; }
 .is-upcoming .timeline-title { color: #3d5046; }
@@ -147,6 +148,7 @@ input:focus-visible, button:focus-visible { outline: 3px solid #66bd91; outline-
 @media (max-width: 700px) { .site-navbar-inner { flex-wrap: wrap; gap: 0 .6rem; padding: .45rem 0; }.site-brand { margin-right: auto; }.site-nav { order: 3; width: 100%; overflow-x: auto; margin-top: .4rem; }.account-summary { max-width: 135px; } }
 .route-summary { display: grid; gap: .45rem; margin-top: .7rem; }
 .route-summary p { margin: 0; font-size: .82rem; }
+.route-empty { margin: 0; padding: 1rem; border: 1px solid #d9e4dc; border-radius: 12px; background: #f8fbf8; color: #4d6356; font-size: .88rem; }
 .route-progress { height: 8px; overflow: hidden; border-radius: 100px; background: #e5eee8; }
 .route-progress span { display: block; height: 100%; border-radius: inherit; background: #176346; transition: width .3s; }
 .next-step { margin-bottom: 1.1rem; padding: .9rem 1rem; border: 1px solid #c9e0d0; border-radius: 14px; background: #f8fcf8; }

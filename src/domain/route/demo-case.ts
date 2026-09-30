@@ -5,7 +5,7 @@ import type { Center, ProgramItem, Service, Slot, Step } from "./route";
 export const child = { name: "Алихан", ageYears: 6 };
 
 export const initialSteps: Step[] = [
-  { stage: "SPECIALIST_CONSULTATION", status: "COMPLETED", deadline: null },
+  { stage: "SPECIALIST_CONSULTATION", status: "NOT_STARTED", deadline: null },
   { stage: "PMPK", status: "IN_PROGRESS", deadline: null },
   { stage: "KPPK", status: "BLOCKED", deadline: null },
   { stage: "INDIVIDUAL_PROGRAM", status: "BLOCKED", deadline: null },

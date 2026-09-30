@@ -30,7 +30,7 @@ export async function createClient() {
 export type CurrentProfile = { id: string; email: string; fullName: string | null };
 
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
-  // Without Supabase nobody can be signed in; /login explains the configuration error.
+  // Without Supabase nobody can be signed in; the home page explains the configuration error.
   if (!isSupabaseConfigured()) return null;
   const supabase = await createClient();
   const { data: claimsData } = await supabase.auth.getClaims();

@@ -1,5 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { getCurrentProfile } from "@/lib/supabase/server";
+import LoginForm from "./login/login-form";
 import styles from "./home.module.css";
 
 export const metadata: Metadata = {
@@ -33,7 +36,10 @@ function ArrowIcon() {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const profile = await getCurrentProfile();
+  const routeHref = profile ? "/parent" : "#login";
+  const routeLabel = profile ? "Открыть маршрут" : "Начать маршрут";
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -43,7 +49,7 @@ export default function Home() {
         </Link>
         <nav aria-label="Главная навигация" className={styles.navigation}>
           <a href="#how-it-works" className={styles.navInfo}>Как это работает</a>
-          <Link href="/login" className={styles.navLogin}>Войти <ArrowIcon /></Link>
+          <Link href={routeHref} className={styles.navLogin}>{profile ? "Мой маршрут" : "Войти"} <ArrowIcon /></Link>
         </nav>
       </header>
 
@@ -54,40 +60,30 @@ export default function Home() {
             <h1 id="hero-title">AI-куратор ведёт вас <span>от вопросов до записи</span></h1>
             <p className={styles.heroDescription}>AqylRoute создаёт персональный маршрут помощи ребёнку, находит нужные учреждения и берёт запись на себя. Вы выбираете удобное время и всегда знаете следующий шаг.</p>
             <div className={styles.heroActions}>
-              <Link href="/login" className={styles.primaryButton}>Начать маршрут <ArrowIcon /></Link>
+              <Link href={routeHref} className={styles.primaryButton}>{routeLabel} <ArrowIcon /></Link>
               <a href="#how-it-works" className={styles.secondaryLink}>Как это работает <span aria-hidden="true">↓</span></a>
             </div>
           </div>
 
-          <div className={styles.heroVisual} aria-label="Пример маршрута из трёх шагов">
-            <div className={styles.visualGlow} aria-hidden="true" />
-            <div className={styles.routeCard}>
-              <div className={styles.routeHeader}>
-                <div>
-                  <span className={styles.cardEyebrow}>ВАШ ЛИЧНЫЙ МАРШРУТ · ПРИМЕР</span>
-                  <h2>Вы видите путь. Куратор помогает пройти его.</h2>
-                </div>
-                <span className={styles.routeSymbol} aria-hidden="true">↗</span>
-              </div>
-              <ol className={styles.routeList}>
-                <li className={styles.routeItemDone}>
-                  <span className={styles.routeNode} aria-hidden="true">✓</span>
-                  <div><strong>Рассказать о ситуации</strong><small>Куратор узнаёт, что важно вашей семье</small></div>
-                  <span className={styles.doneBadge}>Готово</span>
-                </li>
-                <li className={styles.routeItemCurrent}>
-                  <span className={styles.routeNode} aria-hidden="true"><span /></span>
-                  <div><strong>Выбрать место и время</strong><small>Куратор находит подходящие варианты</small></div>
-                  <span className={styles.currentBadge}>Текущий шаг</span>
-                </li>
-                <li>
-                  <span className={styles.routeNode} aria-hidden="true" />
-                  <div><strong>Получить запись</strong><small>Куратор всё организует за вас</small></div>
-                </li>
-              </ol>
-            </div>
-            <div className={styles.visualCaption}>Ваш путь — в одном месте.</div>
-          </div>
+          <section id="login" className={styles.loginPanel} aria-labelledby="login-title">
+            <span className={styles.sectionKicker}>ВАШ ЛИЧНЫЙ МАРШРУТ</span>
+            {profile ? (
+              <>
+                <h2 id="login-title">С возвращением{profile.fullName ? `, ${profile.fullName}` : ""}!</h2>
+                <p>Ваш маршрут ждёт вас. Продолжите с того шага, на котором остановились.</p>
+                <Link href="/parent" className={styles.primaryButton}>Открыть мой маршрут <ArrowIcon /></Link>
+              </>
+            ) : (
+              <>
+                <h2 id="login-title">Войдите и начните маршрут</h2>
+                <p>Для демо данные родителя уже заполнены. Нажмите «Войти», чтобы открыть маршрут.</p>
+                {isSupabaseConfigured() ? <LoginForm /> : (
+                  <p className="form-error" role="alert">Вход временно недоступен: сервис не настроен. Администратору нужно задать переменные Supabase (см. README).</p>
+                )}
+                <p className={styles.loginNote}>Демо работает только с синтетическими аккаунтами. Не вводите данные ребёнка.</p>
+              </>
+            )}
+          </section>
         </section>
 
         <section id="how-it-works" className={styles.how} aria-labelledby="how-title">
@@ -113,7 +109,7 @@ export default function Home() {
             <h2 id="closing-title">Начните с одного разговора</h2>
             <p>AI-куратор превращает ваши ответы в понятный маршрут и берёт организацию помощи на себя.</p>
           </div>
-          <Link href="/login" className={styles.primaryButton}>Начать маршрут <ArrowIcon /></Link>
+          <Link href={routeHref} className={styles.primaryButton}>{routeLabel} <ArrowIcon /></Link>
         </section>
       </main>
 

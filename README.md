@@ -8,7 +8,7 @@ Next.js 16 demo for a parent. The dashboard shows a vertical route and a visual 
 2. Copy `.env.example` to `.env.local`. Add Supabase values. OpenAI variables can be kept for the next stage. Keep server keys private.
 3. Apply SQL files in `supabase/migrations` in order to a new database. For an existing database with `0001` and `0002`, apply `0003_cases_plans_catalog.sql`, then `0004_parent_interview.sql`.
 4. Run `pnpm install`, then `pnpm seed:demo`. Run `pnpm seed:catalog` to load the service catalog used by the new case-plan domain.
-5. Run `pnpm dev` and open `http://localhost:3000/login`.
+5. Run `pnpm dev` and open `http://localhost:3000/`.
 6. Check the merged code with `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm build`.
 
 ## Demo account

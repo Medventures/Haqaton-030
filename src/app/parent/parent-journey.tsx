@@ -10,28 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Answers } from "@/lib/interview";
 import {
-  STAGES, SERVICE_TITLES, buildSchedule, createSyntheticKppkBooking, currentStage, findReschedule, matchKppkOptions, progress, weekStats,
-  type Appointment, type CenterSlot, type StageId, type Step, type StepStatus,
+  STAGES, SERVICE_TITLES, buildSchedule, createSyntheticKppkBooking, findReschedule, matchKppkOptions, weekStats,
+  type Appointment, type CenterSlot, type StageId, type StepStatus,
 } from "@/domain/route/route";
 import {
-  child, initialSteps, kppkCenters, kppkNeededServices, kppkSlots, missedSlotId, nextAssessment, pmpkParse, program, weekEnd, weekSlots,
+  child, kppkCenters, kppkNeededServices, kppkSlots, missedSlotId, nextAssessment, pmpkParse, program, weekEnd, weekSlots,
 } from "@/domain/route/demo-case";
+import { afterPhase, demoRouteState, type DemoPhase } from "@/domain/route/demo-status";
 import Interview, { AnswersSummary } from "./interview/interview";
 
 // Screens 1-6 of @.archcore/digital-child-route.prd.md as one walk through case C.
 // ponytail: state lives in the tab and resets on reload; persist Case Plan v2 in Supabase when the flow is final.
-const PHASES = ["upload", "parsed", "searching", "centers", "booking-check", "booked", "program", "schedule", "scheduled", "control", "rescheduled"] as const;
-type Phase = (typeof PHASES)[number];
-const after = (phase: Phase, than: Phase) => PHASES.indexOf(phase) >= PHASES.indexOf(than);
-
-function stepsFor(phase: Phase): Step[] {
-  const status: Partial<Record<StageId, StepStatus>> = {};
-  if (after(phase, "searching")) Object.assign(status, { PMPK: "COMPLETED", KPPK: "NOT_STARTED" });
-  if (after(phase, "booked")) status.KPPK = "IN_PROGRESS";
-  if (after(phase, "program")) Object.assign(status, { KPPK: "COMPLETED", INDIVIDUAL_PROGRAM: "COMPLETED", REHABILITATION: "NOT_STARTED" });
-  if (after(phase, "scheduled")) Object.assign(status, { REHABILITATION: "IN_PROGRESS", CONTROL_ASSESSMENT: "NOT_STARTED" });
-  return initialSteps.map((step) => ({ ...step, status: status[step.stage] ?? step.status }));
-}
+type Phase = DemoPhase;
+const after = afterPhase;
 
 const STATUS_LABELS: Record<StepStatus, string> = {
   NOT_STARTED: "Можно начинать", IN_PROGRESS: "В работе", COMPLETED: "Пройдено",
@@ -75,9 +66,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
 
   const residence = answers.RESIDENCE;
   const city = residence && typeof residence === "object" && "city" in residence && typeof residence.city === "string" ? residence.city : null;
-  const steps = stepsFor(phase);
-  const current = currentStage(steps);
-  const percent = progress(steps);
+  const { steps, current, percent } = demoRouteState(phase, answers, completed);
   const options = matchKppkOptions(kppkCenters, kppkSlots, kppkNeededServices,
     { routeType: "public", paidCurator: false, ageYears: child.ageYears });
   const selected = options.find((option) => option.center.id === centerId);
@@ -172,12 +161,12 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
             <CardTitle>Ваш план</CardTitle>
             <Button variant="ghost" size="sm" className="ml-auto" onClick={resetInterview}><RotateCcw size={14} /> Сбросить</Button>
           </div>
-          <div className="route-summary">
+          {completed && <div className="route-summary">
             <div className="route-progress" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label="Маршрут выполнен">
               <span style={{ width: `${percent}%` }} />
             </div>
             <p>Маршрут выполнен на <strong>{percent}%</strong> · Текущий этап: <strong>{STAGES.find((s) => s.id === current)?.title ?? "—"}</strong></p>
-          </div>
+          </div>}
         </CardHeader>
         <CardContent>
           {completed && <section className="next-step" aria-label="Следующий шаг">
@@ -188,14 +177,15 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
             {phase === "booked" && <p className="next-step-ai"><Sparkles size={13} /> Я записал ребёнка. Напомню о визите заранее.</p>}
           </section>}
 
-          <ol className="route-timeline route-stages" aria-label="Этапы маршрута">
+          {completed ? <ol className="route-timeline route-stages" aria-label="Этапы маршрута">
             {steps.map((step) => {
-              const state = step.status === "COMPLETED" ? "done" : step.stage === current ? "current" : "upcoming";
+              const state = step.status === "COMPLETED" ? "done" : step.stage === current ? "current"
+                : step.stage === "SPECIALIST_CONSULTATION" && step.status === "IN_PROGRESS" ? "reported" : "upcoming";
               const isCompleted = step.status === "COMPLETED";
               const isOpen = openStage === step.stage;
               const stageContent = <>
                 <span className="timeline-title">{STAGES.find((s) => s.id === step.stage)!.title}</span>
-                <span className="step-state">{state === "current" && step.status === "BLOCKED" ? "Текущий этап" : STATUS_LABELS[step.status]}</span>
+                <span className="step-state">{step.stage === "SPECIALIST_CONSULTATION" && step.status === "IN_PROGRESS" ? "Со слов семьи" : state === "current" && step.status === "BLOCKED" ? "Текущий этап" : STATUS_LABELS[step.status]}</span>
                 {isCompleted && <span className="stage-view-label">{isOpen ? "Скрыть детали" : "Смотреть детали"}<ChevronDown size={15} aria-hidden="true" /></span>}
               </>;
               return <li key={step.stage} className={`timeline-step is-${state}${step.status === "OVERDUE" ? " is-overdue" : ""}`}>
@@ -206,7 +196,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
                   : <div className="timeline-body is-static">{stageContent}</div>}
                 {isCompleted && <div className="stage-details" id={`stage-details-${step.stage}`} hidden={!isOpen}>
                   <p className="readonly-note">Просмотр завершённого этапа. Изменение данных здесь недоступно.</p>
-                  {step.stage === "SPECIALIST_CONSULTATION" && <p>Консультация отмечена как пройденная. Дата и заключение пока не добавлены.</p>}
+                  {step.stage === "SPECIALIST_CONSULTATION" && <p>Сведения о консультации пока не добавлены.</p>}
                   {step.stage === "PMPK" && <dl className="stage-facts">
                     <div><dt>Документ</dt><dd>{pmpkParse.type} от {pmpkParse.date}</dd></div>
                     <div><dt>Направление</dt><dd>{pmpkParse.nextRoute}</dd></div>
@@ -227,7 +217,7 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
                 </div>}
               </li>;
             })}
-          </ol>
+          </ol> : <p className="route-empty">Маршрут появится после завершения анкеты. Пока ни один этап не отмечен как пройденный.</p>}
         </CardContent>
       </Card>
 

@@ -7,7 +7,7 @@ import type { Answers } from "@/lib/interview";
 
 export default async function ParentPage() {
   const profile = await getCurrentProfile();
-  if (!profile) redirect("/login");
+  if (!profile) redirect("/#login");
   const supabase = await createClient();
   const { data: session, error: sessionError } = await supabase.from("interview_sessions")
     .select("answers_json, status").eq("parent_id", profile.id).maybeSingle();
