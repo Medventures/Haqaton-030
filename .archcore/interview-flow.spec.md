@@ -1,6 +1,6 @@
 ---
 title: "Контракт пошагового интервью родителя (MVP)"
-status: draft
+status: accepted
 tags:
   - "aqylroute"
   - "interview"

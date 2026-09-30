@@ -341,6 +341,16 @@
       "source": "child-route.spec.md",
       "target": "deadline-and-escalation-model.rnd.md",
       "type": "supersedes"
+    },
+    {
+      "source": "nextjs-vercel-mvp.adr.md",
+      "target": "agent-timeline-mvp.adr.md",
+      "type": "related"
+    },
+    {
+      "source": "interview-flow.spec.md",
+      "target": "child-route.spec.md",
+      "type": "related"
     }
   ]
 }

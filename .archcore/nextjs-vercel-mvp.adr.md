@@ -15,14 +15,14 @@ tags:
 
 - Серверный слой — App Router Route Handlers (`src/app/api/**/route.ts`) на Node.js runtime. Pages Router не вводим.
 - Хостинг — Vercel. Docker, Nginx и VPS в первый релиз не входят.
-- Текущий dashboard показывает синтетическую визуализацию работы агента без вызова модели. OpenAI-конфигурация сохранена для будущих Route Handlers; схема фоновой генерации Case Plan перенесена в @PLAN-legacy.md до нового контракта.
+- Текущий dashboard показывает синтетическую визуализацию работы агента без вызова модели. OpenAI-конфигурация сохранена для будущих Route Handlers; схема фоновой генерации Case Plan отложена до нового контракта.
 - Периодический проход сроков пока не реализован. Решение о механизме будет принято вместе с новым Case Plan без куратора.
 - Многошаговые записи (статус + ревизия + событие) — функции Postgres, вызываемые через RPC; supabase-js сам транзакции не открывает.
 - Миграции — SQL-файлы в `supabase/migrations`, применяются через `psql "$POSTGRES_URL_NON_POOLING"`.
 - UI-компоненты — shadcn/ui поверх Tailwind 4 и токенов `DESIGN.md`.
 - Текущие переменные описаны в @.env.example. Серверные `OPENAI_API_KEY` и `OPENAI_MODEL` зарезервированы для следующего этапа. `CRON_SECRET` тоже зарезервирован: cron-маршрута пока нет.
 
-План задач и приёмки: [PLAN.md](../PLAN.md).
+План задач и приёмки: см. @.archcore/child-route.spec.md.
 
 ## Alternatives Considered
 
