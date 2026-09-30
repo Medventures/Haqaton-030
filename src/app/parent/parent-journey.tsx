@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   ArrowRight, CalendarDays, Check, CircleCheck, CircleDashed, ClipboardList,
-  Clock3, FileText, FileUp, MapPin, Sparkles,
+  Clock3, FileText, FileUp, MapPin, RotateCcw, Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -81,6 +81,13 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
   const rebook = missed ? findReschedule(missed, weekSlots, appointments, weekEnd) : null;
   const feed = feedFor(phase, booking);
 
+  async function resetInterview() {
+    if (!confirm("Сбросить ответы анкеты?")) return;
+    const res = await fetch("/api/interview/reset", { method: "POST" });
+    if (res.ok) location.reload();
+    else alert("Не удалось сбросить анкету.");
+  }
+
   const nextStep = (() => {
     if (!after(phase, "centers")) return { title: "Загрузить заключение ПМПК", text: "AI-куратор определит следующий этап по документу.", status: "Ждёт документа" };
     if (phase === "centers") return { title: "Записаться в КППК", text: "Выберите кабинет и время справа.", status: "Можно начинать" };
@@ -96,7 +103,8 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
       <Card className="journey-panel route-panel">
         <CardHeader className="journey-panel-header">
           <div className="panel-heading"><span className="panel-icon"><ClipboardList size={20} /></span>
-            <div><span className="panel-kicker">Мой маршрут</span><CardTitle>{child.name}, {child.ageYears} лет</CardTitle></div>
+            <CardTitle>Ваш план</CardTitle>
+            <Button variant="ghost" size="sm" className="ml-auto" onClick={resetInterview}><RotateCcw size={14} /> Сбросить</Button>
           </div>
           <div className="route-summary">
             <div className="route-progress" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label="Маршрут выполнен">
@@ -141,9 +149,8 @@ export default function ParentJourney({ answers, completed }: { answers: Answers
       </Card> : <Card className="journey-panel agent-panel">
         <CardHeader className="journey-panel-header">
           <div className="panel-heading"><span className="panel-icon agent-icon"><Sparkles size={20} /></span>
-            <div><span className="panel-kicker">AI-куратор</span><CardTitle>Что я делаю по маршруту</CardTitle></div>
+            <CardTitle>ИИ-куратор</CardTitle>
           </div>
-          <p>Я выполняю решения специалистов: не ставлю диагноз и не назначаю занятия. Записи создаю только после вашего подтверждения.</p>
         </CardHeader>
         <CardContent className="agent-content">
           <ol className="agent-activity" aria-label="Действия AI-куратора">
