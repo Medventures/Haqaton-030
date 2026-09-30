@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "files": {},
+  "relations": [
+    {
+      "source": "auth/supabase-auth-roles.adr.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "implements"
+    },
+    {
+      "source": "route-and-mvp-context.research.md",
+      "target": "child-route-concept.idea.md",
+      "type": "related"
+    },
+    {
+      "source": "kz-legal-and-data-context.research.md",
+      "target": "child-route-concept.idea.md",
+      "type": "related"
+    },
+    {
+      "source": "kz-legal-and-data-context.research.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "related"
+    },
+    {
+      "source": "parent-journey.journey.md",
+      "target": "child-route-concept.idea.md",
+      "type": "related"
+    },
+    {
+      "source": "parent-journey.journey.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "related"
+    },
+    {
+      "source": "curator-journey.journey.md",
+      "target": "child-route-concept.idea.md",
+      "type": "related"
+    },
+    {
+      "source": "curator-journey.journey.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "related"
+    },
+    {
+      "source": "jury-demo.journey.md",
+      "target": "child-route-concept.idea.md",
+      "type": "related"
+    },
+    {
+      "source": "jury-demo.journey.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "related"
+    },
+    {
+      "source": "curator-journey.journey.md",
+      "target": "parent-journey.journey.md",
+      "type": "related"
+    },
+    {
+      "source": "early-route-synthetic-case.scenario.md",
+      "target": "case-plan-contract.spec.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "pmpk-overdue-synthetic-case.scenario.md",
+      "target": "case-plan-contract.spec.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "plan-generation-guardrails.scenario.md",
+      "target": "case-plan-contract.spec.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "adaptive-interview.scenario.md",
+      "target": "interview-flow.spec.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "case-plan-contract.spec.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "related"
+    },
+    {
+      "source": "case-plan-contract.spec.md",
+      "target": "child-route-concept.idea.md",
+      "type": "related"
+    },
+    {
+      "source": "interview-flow.spec.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "related"
+    },
+    {
+      "source": "interview-flow.spec.md",
+      "target": "child-route-concept.idea.md",
+      "type": "related"
+    },
+    {
+      "source": "interview-flow.spec.md",
+      "target": "case-plan-contract.spec.md",
+      "type": "related"
+    },
+    {
+      "source": "ai-action-selection-boundary.rnd.md",
+      "target": "mvp-solution-hypotheses.rnd.md",
+      "type": "related"
+    },
+    {
+      "source": "deadline-and-escalation-model.rnd.md",
+      "target": "mvp-solution-hypotheses.rnd.md",
+      "type": "related"
+    },
+    {
+      "source": "personal-data-and-access.rnd.md",
+      "target": "mvp-solution-hypotheses.rnd.md",
+      "type": "related"
+    },
+    {
+      "source": "tech-stack.rnd.md",
+      "target": "mvp-solution-hypotheses.rnd.md",
+      "type": "related"
+    },
+    {
+      "source": "ai-action-selection-boundary.rnd.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "related"
+    },
+    {
+      "source": "deadline-and-escalation-model.rnd.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "related"
+    },
+    {
+      "source": "personal-data-and-access.rnd.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "related"
+    },
+    {
+      "source": "tech-stack.rnd.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "related"
+    },
+    {
+      "source": "mvp-solution-hypotheses.rnd.md",
+      "target": "kmu-task-requirements.rule.md",
+      "type": "related"
+    },
+    {
+      "source": "mvp-solution-hypotheses.rnd.md",
+      "target": "route-and-mvp-context.research.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "mvp-solution-hypotheses.rnd.md",
+      "target": "child-route-concept.idea.md",
+      "type": "related"
+    },
+    {
+      "source": "personal-data-and-access.rnd.md",
+      "target": "kz-legal-and-data-context.research.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "ai-action-selection-boundary.rnd.md",
+      "target": "route-and-mvp-context.research.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "deadline-and-escalation-model.rnd.md",
+      "target": "route-and-mvp-context.research.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "case-plan-contract.spec.md",
+      "target": "ai-action-selection-boundary.rnd.md",
+      "type": "related"
+    },
+    {
+      "source": "case-plan-contract.spec.md",
+      "target": "deadline-and-escalation-model.rnd.md",
+      "type": "related"
+    },
+    {
+      "source": "interview-flow.spec.md",
+      "target": "ai-action-selection-boundary.rnd.md",
+      "type": "related"
+    },
+    {
+      "source": "tech-stack.rnd.md",
+      "target": "auth/supabase-auth-roles.adr.md",
+      "type": "related"
+    },
+    {
+      "source": "personal-data-and-access.rnd.md",
+      "target": "auth/supabase-auth-roles.adr.md",
+      "type": "related"
+    },
+    {
+      "source": "parent-journey.journey.md",
+      "target": "interview-flow.spec.md",
+      "type": "related"
+    },
+    {
+      "source": "curator-journey.journey.md",
+      "target": "case-plan-contract.spec.md",
+      "type": "related"
+    },
+    {
+      "source": "jury-demo.journey.md",
+      "target": "early-route-synthetic-case.scenario.md",
+      "type": "related"
+    },
+    {
+      "source": "jury-demo.journey.md",
+      "target": "pmpk-overdue-synthetic-case.scenario.md",
+      "type": "related"
+    }
+  ]
+}
