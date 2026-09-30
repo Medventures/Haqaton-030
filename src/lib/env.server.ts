@@ -31,7 +31,7 @@ export function getSupabaseSecretKey(): string {
   return requireEnv(["SUPABASE_SECRET_KEY"]).SUPABASE_SECRET_KEY;
 }
 
-// Reserved for the future agent backend. The current dashboard uses synthetic data.
+// Used only by the authenticated route generation endpoint.
 export function getOpenAIConfig(): { apiKey: string; model: string } | null {
   const apiKey = read("OPENAI_API_KEY");
   const model = read("OPENAI_MODEL");
