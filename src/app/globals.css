@@ -33,3 +33,21 @@ input:focus-visible, button:focus-visible { outline: 3px solid #66bd91; outline-
 .profile-list div { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #d9e4dc; }
 .profile-list dt { color: #62766a; }
 .profile-list dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; text-align: right; }
+.interview-card { margin-top: 0; }
+.interview-progress { display: flex; justify-content: space-between; font-size: .85rem; font-weight: 700; color: #527466; }
+.interview-card progress { width: 100%; height: .55rem; accent-color: #176346; margin: .8rem 0 1.5rem; }
+.interview-card h2, .interview-done h2 { font-size: clamp(1.4rem, 4vw, 2rem); line-height: 1.25; margin: 0 0 .4rem; }
+.question-reason { margin: 0 0 1.8rem; }
+.answer-list { display: grid; gap: .65rem; }
+.answer-option { display: flex; align-items: center; gap: .8rem; width: 100%; text-align: left; padding: .9rem 1rem; border: 1px solid #cbdcd0; border-radius: 12px; background: white; color: #18312b; }
+.answer-option:hover { border-color: #176346; }
+.answer-option.selected { border-color: #176346; background: #e9f5ed; font-weight: 700; }
+.option-marker { flex: 0 0 1.3rem; width: 1.3rem; height: 1.3rem; border: 1px solid #89ae98; border-radius: 50%; display: inline-grid; place-items: center; font-size: .8rem; }
+.answer-option.selected .option-marker { color: white; background: #176346; border-color: #176346; }
+.place-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.field-hint { grid-column: 1 / -1; font-size: .83rem; margin: .2rem 0; color: #62766a; }
+.interview-actions { display: flex; gap: .8rem; margin-top: 2rem; }
+.interview-actions .primary-button { width: auto; flex: 1; }
+.secondary-button { border: 1px solid #b9cfc1; border-radius: 10px; background: white; color: #176346; padding: .85rem 1rem; font-weight: 700; }
+.secondary-button:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 600px) { .place-grid { grid-template-columns: 1fr; } .interview-actions { flex-direction: column-reverse; } }

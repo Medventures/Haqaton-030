@@ -216,6 +216,11 @@
       "source": "jury-demo.journey.md",
       "target": "pmpk-overdue-synthetic-case.scenario.md",
       "type": "related"
+    },
+    {
+      "source": "interview-flow.spec.md",
+      "target": "parent-interview-question-bank.doc.md",
+      "type": "depends_on"
     }
   ]
 }
