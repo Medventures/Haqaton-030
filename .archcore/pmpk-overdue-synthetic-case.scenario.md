@@ -1,6 +1,6 @@
 ---
 title: "Синтетический кейс B: просрочка назначения даты обследования ПМПК"
-status: draft
+status: rejected
 tags:
   - "actor:curator"
   - "actor:parent"

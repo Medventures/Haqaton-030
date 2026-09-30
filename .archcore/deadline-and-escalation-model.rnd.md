@@ -1,6 +1,6 @@
 ---
 title: "AqylRoute MVP: статусы шага, сроки и эскалация просрочки"
-status: draft
+status: rejected
 tags:
   - "aqylroute"
   - "deadlines"

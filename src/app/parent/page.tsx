@@ -11,11 +11,10 @@ export default async function ParentPage() {
   const supabase = await createClient();
   const { data: session, error: sessionError } = await supabase.from("interview_sessions")
     .select("answers_json, status").eq("parent_id", profile.id).maybeSingle();
-  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Almaty" }).format(new Date());
   return (
     <><Navbar profile={profile} /><main className="dashboard-shell">
       {sessionError && <p className="form-error" role="alert">Не удалось загрузить опрос. Обновите страницу или проверьте подключение к Supabase.</p>}
-      <ParentJourney answers={(session?.answers_json as Answers | null) ?? {}} completed={session?.status === "completed"} today={today} />
+      <ParentJourney answers={(session?.answers_json as Answers | null) ?? {}} completed={session?.status === "completed"} />
     </main></>
   );
 }

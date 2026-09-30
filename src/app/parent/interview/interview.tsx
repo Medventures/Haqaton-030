@@ -49,15 +49,35 @@ function PlaceFields({ value, onChange, prefix }: { value: unknown; onChange: (v
   </div>;
 }
 
-export default function Interview({ initialAnswers, initialCompleted }: { initialAnswers: Answers; initialCompleted: boolean }) {
+function answerText(id: QuestionId, value: unknown): string {
+  const label = (item: unknown) => (id === "CURRENT_SERVICES" ? services.find((service) => service.id === item)?.label : undefined)
+    ?? choices[id]?.find((option) => option.value === item)?.label ?? String(item);
+  if (id === "AGE") return `${value} лет`;
+  if (id === "RESIDENCE") { const place = value as { city: string; district: string }; return `${place.city}, ${place.district}`; }
+  if (id === "REGISTRATION") {
+    const registration = value as { same: boolean; place?: { city: string; district: string } };
+    return registration.same ? "Совпадает с местом проживания" : `${registration.place?.city}, ${registration.place?.district}`;
+  }
+  if (value === "none" && id === "CURRENT_SERVICES") return "Пока не получает услуги из списка";
+  return Array.isArray(value) ? value.map(label).join(", ") : label(value);
+}
+
+export function AnswersSummary({ answers }: { answers: Answers }) {
+  return <dl className="answers-summary">
+    {questions.map(({ id, title }) => <div key={id}>
+      <dt>{title}</dt>
+      <dd>{validAnswer(id, answers[id]) ? answerText(id, answers[id]) : "Нет ответа"}</dd>
+    </div>)}
+  </dl>;
+}
+
+export default function Interview({ initialAnswers }: { initialAnswers: Answers }) {
   const router = useRouter();
   const [answers, setAnswers] = useState<Answers>({ ...demoAnswers, ...initialAnswers });
   const [step, setStep] = useState(() => {
     const first = questions.findIndex(({ id }) => !validAnswer(id, ({ ...demoAnswers, ...initialAnswers })[id]));
     return first < 0 ? questions.length - 1 : first;
   });
-  const [completed, setCompleted] = useState(initialCompleted);
-  const [editing, setEditing] = useState(!initialCompleted);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const question = questions[step];
@@ -80,19 +100,10 @@ export default function Interview({ initialAnswers, initialCompleted }: { initia
         if (step < questions.length - 1) { setStep(step + 1); return; }
         const result = await completeInterview();
         if (result.error) { setError(result.error); return; }
-        setCompleted(true);
-        setEditing(false);
         router.refresh();
       } catch { setError("Не удалось сохранить ответ. Попробуйте ещё раз."); }
     });
   }
-
-  if (completed && !editing) return <section className="dashboard-card interview-done">
-    <span className="role-tag">10 из 10 вопросов</span>
-    <h2>Ответы сохранены</h2>
-    <p>Откройте маршрут выше. При изменении ответов контекст обновится после завершения опроса.</p>
-    <button className="secondary-button" type="button" onClick={() => { setStep(0); setEditing(true); }}>Изменить ответы</button>
-  </section>;
 
   let control;
   if (question.id === "AGE") control = <label htmlFor="age">Возраст в полных годах

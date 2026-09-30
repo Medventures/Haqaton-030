@@ -251,6 +251,96 @@
       "source": "agent-timeline-demo.spec.md",
       "target": "agent-timeline-mvp.adr.md",
       "type": "implements"
+    },
+    {
+      "source": "digital-child-route.prd.md",
+      "target": "child-route-concept.idea.md",
+      "type": "extends"
+    },
+    {
+      "source": "digital-child-route.prd.md",
+      "target": "deadline-and-escalation-model.rnd.md",
+      "type": "contradicts"
+    },
+    {
+      "source": "digital-child-route.prd.md",
+      "target": "agent-timeline-mvp.adr.md",
+      "type": "contradicts"
+    },
+    {
+      "source": "child-route.spec.md",
+      "target": "digital-child-route.prd.md",
+      "type": "implements"
+    },
+    {
+      "source": "child-route.spec.md",
+      "target": "case-plan-contract.spec.md",
+      "type": "supersedes"
+    },
+    {
+      "source": "document-intake.spec.md",
+      "target": "digital-child-route.prd.md",
+      "type": "implements"
+    },
+    {
+      "source": "document-intake.spec.md",
+      "target": "child-route.spec.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "center-matching-booking.spec.md",
+      "target": "digital-child-route.prd.md",
+      "type": "implements"
+    },
+    {
+      "source": "center-matching-booking.spec.md",
+      "target": "child-route.spec.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "individual-program.spec.md",
+      "target": "digital-child-route.prd.md",
+      "type": "implements"
+    },
+    {
+      "source": "individual-program.spec.md",
+      "target": "center-matching-booking.spec.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "agent-timeline-demo.spec.md",
+      "target": "digital-child-route.prd.md",
+      "type": "implements"
+    },
+    {
+      "source": "agent-timeline-demo.spec.md",
+      "target": "child-route.spec.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "alikhan-synthetic-case.scenario.md",
+      "target": "child-route.spec.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "jury-demo-v2.journey.md",
+      "target": "jury-demo.journey.md",
+      "type": "supersedes"
+    },
+    {
+      "source": "jury-demo-v2.journey.md",
+      "target": "alikhan-synthetic-case.scenario.md",
+      "type": "depends_on"
+    },
+    {
+      "source": "landing-messaging.doc.md",
+      "target": "digital-child-route.prd.md",
+      "type": "extends"
+    },
+    {
+      "source": "child-route.spec.md",
+      "target": "deadline-and-escalation-model.rnd.md",
+      "type": "supersedes"
     }
   ]
 }

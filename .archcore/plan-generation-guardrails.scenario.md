@@ -1,6 +1,6 @@
 ---
 title: "Чек-лист приёмки: ограничения генерации и жизненного цикла Case Plan"
-status: draft
+status: rejected
 tags:
   - "actor:parent"
   - "actor:qa"

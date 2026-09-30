@@ -1,6 +1,6 @@
 ---
 title: "Синтетический кейс A: ранний маршрут ребёнка 2 лет 6 месяцев"
-status: draft
+status: rejected
 tags:
   - "actor:curator"
   - "actor:parent"
