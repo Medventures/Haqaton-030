@@ -81,9 +81,7 @@ export default function ParentJourney({ answers, completed, today }: { answers: 
   const events = routeEvents(completed, confirmed ? chosen : undefined, city);
 
   return <>
-    <div className="journey-heading">
-      <h1>Ваш маршрут и работа агента</h1>
-    </div>
+    <h1 className="sr-only">Ваш маршрут и работа агента</h1>
 
     <div className="journey-grid">
       <Card className="journey-panel route-panel">
@@ -132,7 +130,7 @@ export default function ParentJourney({ answers, completed, today }: { answers: 
           </div>
           <ol className="agent-activity" aria-label="Шаги агента">
             <li><span className="activity-icon"><ClipboardList size={16} /></span><div><strong>Изучил ответы</strong><p>Учитывает возраст, город и этапы, которые семья уже прошла.</p></div><CircleCheck size={17} className="activity-check" /></li>
-            <li><span className="activity-icon"><Search size={16} /></span><div><strong>Нашёл программу</strong><p>Пример: программа ранней помощи на октябрь 2026.</p></div><CircleCheck size={17} className="activity-check" /></li>
+            <li><span className="activity-icon"><Search size={16} /></span><div><strong>Нашёл программу</strong><p>Программа ранней помощи с набором в октябре.</p></div><CircleCheck size={17} className="activity-check" /></li>
             <li><span className="activity-icon"><MapPin size={16} /></span><div><strong>Сравнил места</strong><p>Нашёл два подходящих центра в {city}.</p></div><CircleCheck size={17} className="activity-check" /></li>
             <li><span className="activity-icon"><CalendarDays size={16} /></span><div><strong>Проверил расписание</strong><p>Ниже — свободные даты и время.</p></div><CircleCheck size={17} className="activity-check" /></li>
           </ol>
